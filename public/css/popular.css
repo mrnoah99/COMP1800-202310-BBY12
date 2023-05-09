@@ -118,10 +118,11 @@
   .box img {
     width: 200px;
     height: 200px;
-    object-fit: cover;
+    object-fit: contain; /* cover 대신 contain 사용 */
     border-radius: 5px;
     margin-right: 20px; /* 이미지와 게임 정보 사이 간격 추가 */
-  }
+}
+
   
   
     nav {
@@ -191,6 +192,21 @@
     width: auto;
   }
   
+  .game-details button {
+    padding: 10px 20px;
+    margin-top: 10px;
+    font-size: 16px;
+    color: white;
+    background-color: #007BFF;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.game-details button:hover {
+    background-color: #0056b3;
+}
+
   @media (max-width: 768px) {
     .filter-container {
         justify-content: center;
@@ -200,6 +216,11 @@
         width: 100%;
         max-width: 800px;
       }
+      .box img {
+        width: 100%;
+        max-width: 200px;
+        height: auto;
+    }
     
     
   }
