@@ -1,48 +1,44 @@
-/* Box */
-.box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 300px;
-    margin: 0 20px 20px 20px;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+/* Remove bullets from list items */
+ul {
+    list-style-type: none;
+  }
+  
+  /* Style the game-box */
+  .game-box {
+    background-color: #f1f1f1; /* Set the box color */
+    margin: 20px; /* Add more space around each box */
+    padding: 10px; /* Add some space between the box edges and its content */
+    border-radius: 5px; /* Optional: Round the corners of the box */
+  }
+  
+  /* Style the game-list */
+  .game-list {
+    display: flex; /* Layout the image and the list side by side */
+    align-items: center; /* Center the items vertically */
+    gap: 20px; /* Add some space between the image and the list */
+  }
+  
+  /* Style the image */
+  .game-list img {
+    width: 100px; /* Adjust as needed */
+    height: 100px; /* Adjust as needed */
+    object-fit: contain; /* Ensure the image doesn't get cropped */
+  }
+  
+  /* Center the game-box headings */
+  .game-box h2 {
+    text-align: center;
+  }
+  
+  /* Responsive design for mobile */
+  @media only screen and (max-width: 600px) {
+    .game-list img {
+      width: 50px; /* Reduce the size of the image */
+      height: 50px; /* Reduce the size of the image */
     }
-    
-    .box img {
-    width: 100%;
-    height: auto;
-    margin-bottom: 10px;
-    }
-    
-    .box h3 {
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 10px;
-    }
-    
-    .box h4 {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    }
-    
-    .box p {
-    font-size: 14px;
-    margin-bottom: 10px;
-    }
-    
-    .box a {
-    font-size: 12px;
-    color: #999;
-    margin-right: 5px;
-    }
-    
-    .box a:hover {
-    color: #333;
-    }
-
+  }
+  
+  
 
     nav {
         background-color: #104563;
