@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Profile Page</title>
-    <link rel="stylesheet" href="/public/css/free.css">
+    <title>popular Game Page</title>
+    <link rel="stylesheet" href="/public/css/popular.css">
   </head>
   <body>
     <nav>
@@ -11,7 +11,7 @@
           <img src="/public/img/menu.png" alt="메뉴" class="menu-icon">
         </div>
         <div class="navbar-center">
-          <h1>Free Game</h1>
+          <h1>popular Game</h1>
         </div>
         <div class="navbar-right">
           <img src="/public/img/setting.png" alt="설정" class="settings-icon">
@@ -41,15 +41,21 @@
         <input type="text" placeholder="Search Games...">
       </div>
       <div class="filter-container">
-        <button class="filter">Filter</button>
-        <div class="filter-menu">
-          <ul>
-            <li><a href="#">Free Game</a></li>
-            <li><a href="#">Popular Game</a></li>
-            <li><a href="#">Low and High Price</a></li>
-            <li><a href="#">High and Low Price</a></li>
-          </ul>
+        <div class="filter-btn-container">
+          <button class="filter">Filter</button>
         </div>
+        <div class="filter-menu-container">
+          <div class="filter-menu">
+            <ul>
+              <li><a href="#">Free Game</a></li>
+              <li><a href="#">Popular Game</a></li>
+              <li><a href="#">Low and High Price</a></li>
+              <li><a href="#">High and Low Price</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
       </div>
       <div class="container">
         <div class="box">
@@ -84,13 +90,13 @@
         </div>
       </div>
       <script>
-        // 필터 버튼 클릭 시 필터 메뉴 보이기/숨기기
         const filterBtn = document.querySelector('.filter');
         const filterMenu = document.querySelector('.filter-menu');
         filterBtn.addEventListener('click', () => {
           filterMenu.classList.toggle('show');
         });
       </script>
+      
 
 
       <footer>
