@@ -38,19 +38,26 @@
       </div>
 
       <div class="search-container">
-        <input type="text" placeholder="Search Games...">
+        <input type="text" id="search" placeholder="Search Games...">
+        <button id="searchBtn" class="search-icon">
+          <img src="/public/img/search.png" alt="search">
+        </button>
       </div>
-      <div class="filter-container">
-        <button class="filter">Filter</button>
-        <div class="filter-menu">
-          <ul>
-            <li><a href="#">Free Game</a></li>
-            <li><a href="#">Popular Game</a></li>
-            <li><a href="#">Low and High Price</a></li>
-            <li><a href="#">High and Low Price</a></li>
-          </ul>
+      
+        <div class="filter-container">
+          <div class="filter-btn-container">
+            <button class="filter" id="filterBtn">Filter</button>
+            <div class="filter-menu-container" id="filterMenu">
+              <ul>
+                <li><a href="#">Free Game</a></li>
+                <li><a href="#">Popular Game</a></li>
+                <li><a href="#">Low to high price</a></li>
+                <li><a href="#">High to low pricey</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
+        
       <div class="container">
         <div class="box">
           <img src="https://wallpaperaccess.com/full/2379009.jpg" alt="Game 1">
@@ -83,19 +90,8 @@
           <p>Genres (Video game): Battle royale</p>
         </div>
       </div>
-      <script>
-const filterBtn = document.querySelector('.filter');
-const filterMenu = document.querySelector('.filter-menu');
 
-filterBtn.addEventListener('click', () => {
-  if (filterMenu.classList.contains('show')) {
-    filterMenu.classList.remove('show');
-  } else {
-    filterMenu.classList.add('show');
-  }
-});
-
-      </script>
+      <script src="/public/js/free.js"></script>
 
 
       <footer>

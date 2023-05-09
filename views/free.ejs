@@ -2,8 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <title>Free Game</title>
-    <link rel="stylesheet" href="/public/css/popular.css">
+    <title>Free Game Page</title>
+    <link rel="stylesheet" href="/public/css/free.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-KyZXEAg3QhqLMpG8r+Knujsl5/3z7v7hf1J5p8p9T9Aj7LaJquzD+gWp6JhqA2E7" crossorigin="anonymous">
+
   </head>
   <body>
     <nav>
@@ -38,29 +40,35 @@
       </div>
 
       <div class="search-container">
-        <input type="text" placeholder="Search Games...">
+        <input type="text" id="search" placeholder="Search Games...">
+        <button id="searchBtn" class="search-icon"><i class="fas fa-search"></i></button>
       </div>
-      <div class="filter-container">
-        <button class="filter">Filter</button>
-        <div class="filter-menu">
-          <ul>
-            <li><a href="#">Free Game</a></li>
-            <li><a href="#">Popular Game</a></li>
-            <li><a href="#">Low and High Price</a></li>
-            <li><a href="#">High and Low Price</a></li>
-          </ul>
+      
+
+        <div class="filter-container">
+          <div class="filter-btn-container">
+            <button class="filter" id="filterBtn">Filter</button>
+            <div class="filter-menu-container" id="filterMenu">
+              <ul>
+                <li><a href="#">Free Game</a></li>
+                <li><a href="#">Popular Game</a></li>
+                <li><a href="#">Low to high price</a></li>
+                <li><a href="#">High to low pricey</a></li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </div>
+        
       <div class="container">
         <div class="box">
-          <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png" alt="Game 1">
-          <h2>Minecraft</h2>
-          <p>Genres (Video game): Open world, Action game, Sandbox</p>
+          <img src="https://wallpaperaccess.com/full/2379009.jpg" alt="Game 1">
+          <h2>League of Legends</h2>
+          <p>Genres (Video game): MOBA</p>
         </div>
         <div class="box">
-          <img src="https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_V.png" alt="Game 2">
-          <h2>Grand Theft Auto V</h2>
-          <p>Genres (Video game): Action-adventure game, Racing video game</p>
+          <img src="https://mms.businesswire.com/media/20190204005535/en/703803/4/APEX_Primary_Art_72dpi_RGB_FIN.jpg" alt="Game 2">
+          <h2>Apex Legends</h2>
+          <p>Genres (Video game): battle royale</p>
         </div>
         <div class="box">
           <img src="https://imgix.ranker.com/user_node_img/3837/76737071/original/76737071-photo-u8?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300" alt="Game 3">
@@ -68,29 +76,23 @@
           <p>Genres (Video game): Survival, battle royale, sandbox</p>
         </div>
         <div class="box">
-          <img src="https://imgix.ranker.com/user_node_img/4269/85375035/original/super-smash-bros-ultimate-photo-u2?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300" alt="Game 4">
-          <h2>Super Smash Bros. Ultimate</h2>
-          <p>Genres (Video game): Fighting</p>
+          <img src="https://s.yimg.com/fz/api/res/1.2/TBGlJPuGrYCI.pz5Vt1JBA--~C/YXBwaWQ9c3JjaGRkO2ZpPWZpdDtoPTI2MDtxPTgwO3c9MjYw/https://s.yimg.com/zb/imgv1/30fe762d-df30-303f-aa96-d81d6621bdac/t_500x300" alt="Game 4">
+          <h2>Warframe</h2>
+          <p>Genres (Video game): Online action</p>
         </div>
         <div class="box">
-          <img src="https://upload.wikimedia.org/wikipedia/en/4/44/Red_Dead_Redemption_II.jpg" alt="Game 5">
-          <h2>Red Dead Redemption II</h2>
-          <p>Genres (Video game): Action-adventure</p>
+          <img src="https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a98cff5d-a612-49d8-a0db-175994384b20/de6gwbc-c62515e8-9411-41f1-a478-41972654fd0b.png/v1/fill/w_512,h_512,strp/genshin_impact_icon_by_kiramaru_kun_de6gwbc-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvYTk4Y2ZmNWQtYTYxMi00OWQ4LWEwZGItMTc1OTk0Mzg0YjIwXC9kZTZnd2JjLWM2MjUxNWU4LTk0MTEtNDFmMS1hNDc4LTQxOTcyNjU0ZmQwYi5wbmciLCJ3aWR0aCI6Ijw9NTEyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.aAlCN4I4hmNlQLEkdBgimNt61LuwE2URyQkrREEtPCc" alt="Game 5">
+          <h2>Genshin Impact</h2>
+          <p>Genres (Video game): Open-world adventure</p>
         </div>
         <div class="box">
-          <img src="https://imgix.ranker.com/user_node_img/4270/85381195/original/among-us-u1?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300" alt="Game 6">
-          <h2>Among Us</h2>
-          <p>Genres (Video game): Party video game, survival video game</p>
+          <img src="https://tse3.mm.bing.net/th?id=OIP.NSNSp4aTWGfwM_gs5uBwDwHaHa&pid=Api&P=0" alt="Game 6">
+          <h2>Call of Duty Warzone</h2>
+          <p>Genres (Video game): Battle royale</p>
         </div>
       </div>
-      <script>
-        // 필터 버튼 클릭 시 필터 메뉴 보이기/숨기기
-        const filterBtn = document.querySelector('.filter');
-        const filterMenu = document.querySelector('.filter-menu');
-        filterBtn.addEventListener('click', () => {
-          filterMenu.classList.toggle('show');
-        });
-      </script>
+
+      <script src="/public/js/free.js"></script>
 
 
       <footer>
