@@ -119,6 +119,23 @@
 .box p {
   margin: 0;
 }
+button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin-top: 10px;
+  font-size: 16px;
+  color: white;
+  background-color: #007BFF;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-align: center;
+  text-decoration: none;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
 
 
   nav {
@@ -198,4 +215,3 @@ footer {
     align-items: center; /* 모바일에서 항목을 가운데 정렬 */
   }
 }
-
