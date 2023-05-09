@@ -38,11 +38,13 @@
       </div>
     
     <div class="profile-header">
-        <img src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
+      <input type="file" id="profile-pic-input" style="display: none;">
+      <img id="profile-pic" src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
         <div class="profile-info">
           <h2>Nickname</h2>
           <p>Email</p>
-          <button>Edit Profile Picture</button>
+          <button id="edit-profile-pic-btn">Edit Profile Picture</button>
+
         </div>
       </div>
       
@@ -79,6 +81,8 @@
           <a href="main.html"><img src="/public/img/home.png" alt="homepafe"></a>
         </div>
       </footer>
+
+      <script src="/public/js/profile.js"></script>
       
   </body>
 </html>

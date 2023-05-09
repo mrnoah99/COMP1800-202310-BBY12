@@ -1,0 +1,112 @@
+/* Box */
+.box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+    margin: 0 20px 20px 20px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    }
+    
+    .box img {
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    }
+    
+    .box h3 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    }
+    
+    .box h4 {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    }
+    
+    .box p {
+    font-size: 14px;
+    margin-bottom: 10px;
+    }
+    
+    .box a {
+    font-size: 12px;
+    color: #999;
+    margin-right: 5px;
+    }
+    
+    .box a:hover {
+    color: #333;
+    }
+
+
+    nav {
+        background-color: #104563;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        margin-bottom: 20px; /* 간격을 늘리는 속성 추가 */
+      }
+      
+      .navbar-left,
+      .navbar-right {
+        font-size: 24px;
+      }
+      
+      .navbar-center h1 {
+        margin: 0;
+      }
+      
+      .menu,
+      .settings {
+        display: none;
+        position: absolute;
+        top: 60px;
+        background-color: #104563;
+        color: #fff;
+        padding: 10px;
+        z-index: 1;
+      }
+      
+      .menu ul,
+      .settings ul {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      
+      .menu ul li,
+      .settings ul li {
+        margin-bottom: 10px;
+      }
+      
+      .menu-icon:hover,
+      .settings-icon:hover {
+        cursor: pointer;
+      }
+      
+      .menu-icon,
+      .settings-icon {
+        width: 32px;
+        height: 32px;
+      }
+      
+      
+      footer {
+        background-color: #104563;
+        padding: 20px;
+        text-align: center;
+        margin-top: 20px; /* 간격을 늘리는 속성 추가 */
+      }
+      
+      
+      .logo img {
+        height: 25px;
+        width: auto;
+      }
