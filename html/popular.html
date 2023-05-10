@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>popular Game Page</title>
+    <link rel="stylesheet" href="/public/css/popular.css">
+  </head>
+  <body>
+    <nav>
+        <div class="navbar-left">
+          <img src="/public/img/menu.png" alt="메뉴" class="menu-icon">
+        </div>
+        <div class="navbar-center">
+          <h1>popular Game</h1>
+        </div>
+        <div class="navbar-right">
+          <img src="/public/img/setting.png" alt="설정" class="settings-icon">
+        </div>
+      </nav>
+      
+      <!-- Hamburger menu -->
+      <div class="menu">
+        <ul>
+          <li><a href="#">menu1</a></li>
+          <li><a href="#">menu2</a></li>
+          <li><a href="#">menu3</a></li>
+          <li><a href="#">menu4</a></li>
+        </ul>
+      </div>
+      
+      <!-- Options menu -->
+      <div class="settings">
+        <ul>
+          <li><a href="#">setting1</a></li>
+          <li><a href="#">setting2</a></li>
+          <li><a href="#">setting3</a></li>
+        </ul>
+      </div>
+
+      <div class="search-container">
+        <input type="text" id="search" placeholder="Search Games...">
+        <button id="searchBtn" class="search-icon">
+          <img src="/public/img/search.png" alt="search">
+        </button>
+      </div>
+      
+        <div class="filter-container">
+          <div class="filter-btn-container">
+            <button class="filter" id="filterBtn">Filter</button>
+            <div class="filter-menu-container" id="filterMenu">
+              <ul>
+                <li><a href="/html/free.html">Free Game</a></li>
+                <li><a href="/html/popular.html">Popular Game</a></li>
+                <li><a href="#">Low to high price</a></li>
+                <li><a href="#">High to low pricey</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      
+      </div>
+      <div class="container">
+        <div class="box">
+          <div class="rank">1</div>
+          <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png" alt="Game 1">
+          <div class="game-details">
+            <h2>Minecraft</h2>
+            <p>Genres (Video game): Open world, Action game, Sandbox</p>
+            <button onclick="location.href='purchase-page-url';">Show Details</button>
+          </div>
+        </div>
+        <div class="box">
+            <div class="rank">2</div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_V.png" alt="Game 2">
+            <div class="game-details">
+              <h2>Grand Theft Auto V</h2>
+              <p>Genres (Video game): Action-adventure game, Racing video game</p>
+              <button onclick="location.href='purchase-page-url';">Show Details</button>
+            </div>
+          </div>
+          <div class="box">
+            <div class="rank">3</div>
+            <img src="https://imgix.ranker.com/user_node_img/3837/76737071/original/76737071-photo-u8?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300" alt="Game 3">
+            <div class="game-details">
+              <h2>Fortnite</h2>
+              <p>Genres (Video game): Survival, battle royale, sandbox</p>
+              <button onclick="location.href='purchase-page-url';">Show Details</button>
+            </div>
+          </div>
+          <div class="box">
+            <div class="rank">4</div>
+            <img src="https://imgix.ranker.com/user_node_img/4269/85375035/original/super-smash-bros-ultimate-photo-u2?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300" alt="Game 4">
+            <div class="game-details">
+              <h2>Super Smash Bros. Ultimate</h2>
+              <p>Genres (Video game): Fighting</p>
+              <button onclick="location.href='purchase-page-url';">Show Details</button>
+            </div>
+          </div>
+          <div class="box">
+            <div class="rank">5</div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/4/44/Red_Dead_Redemption_II.jpg" alt="Game 5">
+            <div class="game-details">
+              <h2>Red Dead Redemption II</h2>
+              <p>Genres (Video game): Action-adventure</p>
+              <button onclick="location.href='purchase-page-url';">Show Details</button>
+            </div>
+          </div>
+          <div class="box">
+            <div class="rank">6</div>
+            <img src="https://imgix.ranker.com/user_node_img/4270/85381195/original/among-us-u1?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300" alt="Game 6">
+            <div class="game-details">
+              <h2>Among Us</h2>
+              <p>Genres (Video game): Party video game, survival video game</p>
+              <button onclick="location.href='purchase-page-url';">Show Details</button>
+            </div>
+          </div>
+      
+
+
+      <footer>
+        <div class="logo">
+          <a href="main.html"><img src="/public/img/home.png" alt="homepafe"></a>
+        </div>
+      </footer>
+      <script src="/public/js/popular.js"></script>
+  </body>
+</html>
