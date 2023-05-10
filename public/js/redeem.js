@@ -56,7 +56,18 @@ async function redeem() {
   const cdKey = generateCDKey();
   alert("Redeem successfully! Your CD key is " + cdKey);
   await updateRemainingQuantity();
+
+  // update the CD key in the warehouse page
+  const warehouseKeys = document.querySelectorAll(".key1_details, .key2_details, .key3_details");
+  for (let i = 0; i < warehouseKeys.length; i++) {
+    const keyDetails = warehouseKeys[i].textContent;
+    if (keyDetails.includes("It takes Two")) {
+      warehouseKeys[i].textContent = cdKey;
+      break;
+    }
+  }
 }
 
 redeemButton.addEventListener("click", redeem);
 fetchRemainingQuantity();
+
