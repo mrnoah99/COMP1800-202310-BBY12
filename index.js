@@ -89,10 +89,6 @@ app.get('/free.html', function(req, res) {
 
 
 
-app.get('/gamedetail.html', (req, res) => {
-
-    res.render('gamedetail');  // 이 부분은 실제로 존재하는 EJS 템플릿 파일 이름으로 변경해야 합니다.
-});
 app.get('/popular.html', (req, res) => {
     // games 변수가 어디서 오는지에 따라 이 부분은 당신의 코드에 맞게 변경되어야 합니다.
     // 이 예제에서는 단순히 빈 배열을 사용합니다.
@@ -144,3 +140,18 @@ app.get('/recommend.html', (req, res) => {
     const imageUrl2 = '/public/img/reco2.png';
     res.render('recommend', { imageUrl1, imageUrl2 }); // imageUrl1과 imageUrl2를 객체로 전달
 });
+
+app.get('/game/:id', function(req, res) {
+  var game = {
+      // ...other properties...
+      relatedGames: [
+          { title: 'Related game 1', image: '/public/img/gameing1.jpg' },
+          { title: 'Related game 2', image: '/public/img/gaming2.jpg' },
+          { title: 'Related game 1', image: '/public/img/gaming3.jpg' },
+          { title: 'Related game 2', image: '/public/img/gaming4.jpg' }
+          // ...more related games...
+      ]
+  };
+  res.render('game_detail', { game: game });
+});
+
