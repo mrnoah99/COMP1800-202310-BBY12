@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 12;
 
 
-const port = process.env.PORT || 9000;
+const port = process.env.PORT || 8000;
 
 const app = express();
 
@@ -146,6 +146,14 @@ app.use(session({
     res.redirect("/index");
   });
 
+
+  // app.get("/setting", (req, res) => {
+  //   if (!req.session.authenticated) {
+  //     res.redirect("/");
+  //     return;
+  //   }
+  //   res.render("setting");
+  // });
 
   app.get("/redeem", (req, res) => {
     if (!req.session.authenticated) {
