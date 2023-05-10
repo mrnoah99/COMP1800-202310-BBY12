@@ -38,13 +38,11 @@
       </div>
     
     <div class="profile-header">
-      <input type="file" id="profile-pic-input" style="display: none;">
-      <img id="profile-pic" src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
+        <img src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
         <div class="profile-info">
           <h2>Nickname</h2>
           <p>Email</p>
-          <button id="edit-profile-pic-btn">Edit Profile Picture</button>
-
+          <button>Edit Profile Picture</button>
         </div>
       </div>
       
@@ -56,6 +54,15 @@
           <label for="email">Email:</label>
           <input type="email" id="email" name="email" value="email@example.com">
       
+          <label for="gender">Gender:</label>
+          <select id="gender" name="gender">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+      
+          <label for="interests">Interests:</label>
+          <input type="text" id="interests" name="interests" value="Interests">
       
           <label for="password">New Password:</label>
           <input type="password" id="password" name="password">
@@ -63,7 +70,7 @@
           <label for="confirm-password">Confirm New Password:</label>
           <input type="password" id="confirm-password" name="confirm-password">
       
-          <button type="submit">Save Button</button>
+          <button type="submit">Save</button>
           <button type="button">Cancel</button>
         </form>
       </div>
@@ -72,10 +79,6 @@
           <a href="main.html"><img src="/public/img/home.png" alt="homepafe"></a>
         </div>
       </footer>
-
-      <script src="/public/js/profile.js"></script>
       
   </body>
 </html>
-
-
