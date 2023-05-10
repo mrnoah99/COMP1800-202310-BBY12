@@ -144,3 +144,4 @@ app.get('/recommend.html', (req, res) => {
     const imageUrl2 = '/public/img/reco2.png';
     res.render('recommend', { imageUrl1, imageUrl2 }); // imageUrl1과 imageUrl2를 객체로 전달
 });
+
