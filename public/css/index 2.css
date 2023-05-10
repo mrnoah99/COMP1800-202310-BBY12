@@ -1,0 +1,32 @@
+#hero {
+    font-size: 30pt;
+    padding-top: 5vmin;
+}
+
+#link {
+    padding-top: 10vmin;
+    font-size: 16pt;
+    color: #005687;
+}
+
+#background-container {
+    display: grid;
+    grid-template-columns: [column1] 50vw [column2] 50vw [pageend] 0px;
+    grid-template-rows: [row1] 25vh [row2] 25vh [pageend] 0px;
+}
+
+#background-colour {
+    background-color: #0572FC;
+    width: 98.8vw;
+    height: 70vh;
+    grid-column: column1 / pageend;
+    grid-row: row1 / pageend;
+}
+
+#background-image {
+    width: 50vw;
+    height: auto;
+    grid-column: column1 / pageend;
+    grid-row: row1 / pageend;
+    justify-self: center;
+}
