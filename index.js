@@ -46,8 +46,14 @@ app.get('/gamedetail.html', (req, res) => {
     res.render('gamedetail');  // 이 부분은 실제로 존재하는 EJS 템플릿 파일 이름으로 변경해야 합니다.
 });
 app.get('/popular.html', (req, res) => {
-    res.render('popular');  // 이 부분은 실제로 존재하는 EJS 템플릿 파일 이름으로 변경해야 합니다.
+    // games 변수가 어디서 오는지에 따라 이 부분은 당신의 코드에 맞게 변경되어야 합니다.
+    // 이 예제에서는 단순히 빈 배열을 사용합니다.
+    let games = [];
+
+    // games 변수를 EJS 템플릿으로 전달합니다.
+    res.render('popular', { games: games });
 });
+
 app.get('/recommend.html', (req, res) => {
     const imageUrl1 = '/public/img/reco1.png';
     const imageUrl2 = '/public/img/reco2.png';
