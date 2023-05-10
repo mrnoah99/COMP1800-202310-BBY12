@@ -16,7 +16,7 @@ html {
     align-items: center;
     font-family: 'Cabin', sans-serif;
     height: 180px;
-    background-image: url(/img/minecraft_even1.jpg);
+    background-image: url(/img/it_takes_two.jpg);
     background-size: cover;
     background-position: center;
 }
@@ -92,7 +92,7 @@ html {
     font-family: 'Cabin', sans-serif;
     align-items: center;
     height: 180px;
-    background-image: url(/img/it_takes_two.jpg);
+    background-image: url(/img/minecraft_even1.jpg);
     background-size: cover;
     background-position: center;
 }
