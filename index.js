@@ -147,8 +147,8 @@ app.get('/game/:id', function(req, res) {
       relatedGames: [
           { title: 'Related game 1', image: '/public/img/gameing1.jpg' },
           { title: 'Related game 2', image: '/public/img/gaming2.jpg' },
-          { title: 'Related game 1', image: '/public/img/gaming3.jpg' },
-          { title: 'Related game 2', image: '/public/img/gaming4.jpg' }
+          { title: 'Related game 3', image: '/public/img/gaming3.jpg' },
+          { title: 'Related game 4', image: '/public/img/gaming4.jpg' }
           // ...more related games...
       ]
   };
