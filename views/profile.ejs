@@ -7,18 +7,17 @@
   </head>
   <body>
 
-    
     <div class="profile-header">
-        <img src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
+        <img id="profile-img" src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
         <div class="profile-info">
-          <h2>Nickname</h2>
-          <p>Email</p>
-          <button>Edit Profile Picture</button>
+          <h2 id="profile-nickname">Nickname</h2>
+          <p id="profile-email">Email</p>
+          <input type="file" id="image-upload">
         </div>
       </div>
       
       <div class="profile-form">
-        <form>
+        <form onsubmit="event.preventDefault(); saveProfile();">
           <label for="nickname">Nickname:</label>
           <input type="text" id="nickname" name="nickname" value="Nickname">
       
@@ -42,7 +41,7 @@
           <input type="password" id="confirm-password" name="confirm-password">
       
           <button type="submit">Save</button>
-          <button type="button">Cancel</button>
+          <button type="button">Cancle</button>
         </form>
       </div>
 
@@ -50,3 +49,4 @@
 
   </body>
 </html>
+
