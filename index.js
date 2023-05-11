@@ -261,37 +261,37 @@ app.get('/free.html', function(req, res) {
     {
       name: 'League of Legends',
       genres: 'MOBA',
-      image: 'https://wallpaperaccess.com/full/2379009.jpg',
+      image: '/public/img/lol.jpg',
       url: 'https://example.com/minecraft'
     },
     {
       name: 'Apex Legends',
       genres: 'battle royale',
-      image: 'https://mms.businesswire.com/media/20190204005535/en/703803/4/APEX_Primary_Art_72dpi_RGB_FIN.jpg',
+      image: '/public/img/apex.jpg',
       url: 'https://example.com/gta5'
     },
     {
       name: 'Fortnite',
       genres: 'Survival, battle royale, sandbox',
-      image: 'https://imgix.ranker.com/user_node_img/3837/76737071/original/76737071-photo-u8?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300',
+      image: '/public/img/fortnite.jpeg',
       url: 'https://example.com/minecraft'
     },
     {
       name: 'Warframe',
       genres: 'Online action',
-      image: 'https://s.yimg.com/fz/api/res/1.2/TBGlJPuGrYCI.pz5Vt1JBA--~C/YXBwaWQ9c3JjaGRkO2ZpPWZpdDtoPTI2MDtxPTgwO3c9MjYw/https://s.yimg.com/zb/imgv1/30fe762d-df30-303f-aa96-d81d6621bdac/t_500x300',
+      image: '/public/img/warframe.jpg',
       url: 'https://example.com/gta5'
     },
     {
       name: 'Genshin Impact',
       genres: 'Open-world adventure',
-      image: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a98cff5d-a612-49d8-a0db-175994384b20/de6gwbc-c62515e8-9411-41f1-a478-41972654fd0b.png/v1/fill/w_512,h_512,strp/genshin_impact_icon_by_kiramaru_kun_de6gwbc-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvYTk4Y2ZmNWQtYTYxMi00OWQ4LWEwZGItMTc1OTk0Mzg0YjIwXC9kZTZnd2JjLWM2MjUxNWU4LTk0MTEtNDFmMS1hNDc4LTQxOTcyNjU0ZmQwYi5wbmciLCJ3aWR0aCI6Ijw9NTEyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.aAlCN4I4hmNlQLEkdBgimNt61LuwE2URyQkrREEtPCc',
+      image: '/public/img/genshin.jpg',
       url: 'https://example.com/minecraft'
     },
     {
       name: 'Call of Duty Warzone',
       genres: 'Battle royale',
-      image: 'https://tse3.mm.bing.net/th?id=OIP.NSNSp4aTWGfwM_gs5uBwDwHaHa&pid=Api&P=0',
+      image: '/public/img/warzone.jpg',
       url: 'https://example.com/gta5'
     }
   ]; // define the games array here

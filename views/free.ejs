@@ -22,19 +22,18 @@
         </div>
       </div>
       <div class="container">
-        <% games.forEach(game => { %>
+        <% games.forEach(function(game) { %> 
           <div class="box">
-            <img src="<%= game.img %>" alt="<%= game.name %>">
+            <img src="<%= game.image %>" alt="Game">
             <h2><%= game.name %></h2>
-            <p>Genres (Video game): <%= game.genre %></p>
+            <p>Genres (Video game): <%= game.genres %></p>
           </div>
         <% }); %>
       </div>
-
       <script>
           const filterBtn = document.querySelector('.filter');
           const filterMenu = document.querySelector('.filter-menu');
-
+      
           filterBtn.addEventListener('click', () => {
             if (filterMenu.classList.contains('show')) {
               filterMenu.classList.remove('show');
@@ -45,3 +44,4 @@
       </script>
   </body>
 </html>
+

@@ -1,11 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
-
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Recommendation Page</title>
-    <link rel="stylesheet" href="/public/css/recommend.css">
     <title>Game Recommendation</title>
     <style>
         body {
@@ -44,21 +39,15 @@
         }
     </style>
 </head>
-
 <body>
-    <% categories.forEach(category => { %>
-        <div class="game-box">
-            <h2><%= category.title %></h2>
-            <div class="game-list">
-                <img src="<%= category.image %>" alt="<%= category.title %>">
-                <ul>
-                    <% category.games.forEach(game => { %>
-                        <li><%= game %></li>
-                    <% }); %>
-                </ul>
-            </div>
-        </div>
-    <% }); %>
+    <div class="container">
+        <a href="#" class="content">
+            <img src="<%= imageUrl1 %>" alt="recommendation 1">
+        </a>
+        <a href="#" class="content">
+            <img src="<%= imageUrl2 %>" alt="recommendation 2">
+        </a>
+        
+    </div>
 </body>
-
 </html>
