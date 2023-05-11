@@ -6,36 +6,7 @@
     <link rel="stylesheet" href="../public/css/profile.css">
   </head>
   <body>
-    <nav>
-        <div class="navbar-left">
-          <img src="../public/img/menu.png" alt="메뉴" class="menu-icon">
-        </div>
-        <div class="navbar-center">
-          <h1>Profile Page</h1>
-        </div>
-        <div class="navbar-right">
-          <img src="../public/img/setting.png" alt="설정" class="settings-icon">
-        </div>
-      </nav>
-      
-      <!-- Hamburger menu -->
-      <div class="menu">
-        <ul>
-          <li><a href="#">menu1</a></li>
-          <li><a href="#">menu2</a></li>
-          <li><a href="#">menu3</a></li>
-          <li><a href="#">menu4</a></li>
-        </ul>
-      </div>
-      
-      <!-- Options menu -->
-      <div class="settings">
-        <ul>
-          <li><a href="#">setting1</a></li>
-          <li><a href="#">setting2</a></li>
-          <li><a href="#">setting3</a></li>
-        </ul>
-      </div>
+    <%- include("headers") %>
     
     <div class="profile-header">
         <img src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
@@ -74,11 +45,7 @@
           <button type="button">Cancel</button>
         </form>
       </div>
-      <footer>
-        <div class="logo">
-          <a href="main.html"><img src="../public/img/home.png" alt="homepage"></a>
-        </div>
-      </footer>
-      
+
+      <%- include("footer") %>
   </body>
 </html>

@@ -352,7 +352,7 @@ app.get('/recommend.html', (req, res) => {
     res.render('recommend', { imageUrl1, imageUrl2 }); // imageUrl1과 imageUrl2를 객체로 전달
 });
 
-app.get('/game/:id', function(req, res) {
+app.get('/gamedetail.html', function(req, res) {
   var game = {
       // ...other properties...
       relatedGames: [
@@ -363,6 +363,6 @@ app.get('/game/:id', function(req, res) {
           // ...more related games...
       ]
   };
-  res.render('game_detail', { game: game });
+  res.render('gamedetail', { game: game });
 });
 
