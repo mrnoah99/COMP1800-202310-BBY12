@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Free Game Page</title>
+    <link rel="stylesheet" href="/public/css/free.css">
+  </head>
+  <body>
+
+
+
+      <div class="search-container">
+        <input type="text" placeholder="Search Games...">
+      </div>
+      <div class="filter-container">
+        <button class="filter">Filter</button>
+        <div class="filter-menu">
+          <ul>
+            <li><a href="/free.html">Free Game</a></li>
+            <li><a href="/popular.html">Popular Game</a></li>
+            <li><a href="#">Low and High Price</a></li>
+            <li><a href="#">High and Low Price</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="container">
+        <% games.forEach(function(game) { %> 
+          <div class="box">
+            <img src="<%= game.image %>" alt="Game">
+            <h2><%= game.name %></h2>
+            <p>Genres (Video game): <%= game.genres %></p>
+          </div>
+        <% }); %>
+      </div>
+      <script>
+          const filterBtn = document.querySelector('.filter');
+          const filterMenu = document.querySelector('.filter-menu');
+      
+          filterBtn.addEventListener('click', () => {
+            if (filterMenu.classList.contains('show')) {
+              filterMenu.classList.remove('show');
+            } else {
+              filterMenu.classList.add('show');
+            }
+          });
+      </script>
+
+  </body>
+</html>
+

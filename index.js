@@ -8,7 +8,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = 12;
 
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 3200;
 
 const app = express();
 
@@ -37,6 +37,7 @@ const userCollection = database.db(mongodb_database).collection("users");
 app.use(express.urlencoded({ extended: false }));
 
 var mongoStore = MongoStore.create({
+
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`,
   crypto: {
     secret: mongodb_session_secret
@@ -50,7 +51,6 @@ app.use(session({
   resave: true
 }
 ));
-
 
 app.get('/nosql-injection', async (req, res) => {
   var name = req.query.user;
@@ -170,7 +170,6 @@ app.get("/warehouse", (req, res) => {
   // }
   res.render("warehouse");
 });
-
 app.get("/getRemainingQuantity", (req, res) => {
   if (!req.session.authenticated) {
     res.status(401).send("Unauthorized");
@@ -187,6 +186,7 @@ app.post("/updateRemainingQuantity", (req, res) => {
   req.session.remainingQuantity -= 1;
   res.json({ remainingQuantity: req.session.remainingQuantity });
 });
+
 
 app.get("/index", (req, res) => {
   if (!req.session.authenticated) {

@@ -1,0 +1,56 @@
+hr {
+    color: #000;
+    width: 100%;
+    height: 1px;
+    overflow: visible;
+    border: 2px solid black;
+}
+
+.redeem {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+  }
+  
+.redeem img {
+    width: 100%;
+}
+
+.redeem_h1 {
+    text-align: center;
+    font-family: 'Russo One', sans-serif;
+    font-size: 50px;
+}
+
+.redeem_p {
+    text-align: center;
+    font-family: 'Russo One', sans-serif;
+    font-size: 20px;
+}
+
+.remain_grid {
+    font-family: 'Russo One', sans-serif;
+    text-align: center;
+    border: 1px solid #000;
+    border-radius: 25px;
+    font-size: 50px;
+    align-items: center;
+    height: 200px;
+    width: 200px;
+    background-color: rgb(159, 174, 189);
+}
+
+.remain_grid p {
+    font-family: 'Russo One', sans-serif;
+    margin-top: 15px;
+}
+
+#redeem_button {
+    font-family: 'Russo One', sans-serif;
+    display: block;
+    margin: 0 auto;
+    margin-top: 25px;
+}
+  

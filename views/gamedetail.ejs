@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title><%= game.title %> Detail</title>
+    <style>
+        .container {
+            background-color: #f1f1f1;
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .title {
+            font-size: 2.5em; /* Increased the font size */
+            margin-bottom: 20px;
+        }
+        .reviews, .price {
+            font-size: 1.4em; /* Increased the font size */
+            margin-bottom: 10px;
+        }
+        .description {
+            font-size: 1.2em; /* Increased the font size */
+            margin-bottom: 20px;
+        }
+        .game-image {
+            width: 100%;
+            height: 500px; /* Increased the height of the image */
+            object-fit: cover;
+            margin-bottom: 20px;
+        }
+        .related-games {
+            display: flex;
+            justify-content: space-between;
+        }
+        .related-games img {
+            width: 24%;
+            height: 200px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+    <div class="container">
+        <div class="title"><%= game.title %></div>
+        <div class="reviews"><%= game.reviews %> Overall Reviews</div>
+        <div class="price"><%= game.price %></div>
+        <div class="description"><%= game.description %></div>
+        <img class="game-image" src="<%= game.image %>" alt="game image">
+        <div>More Games Like This...</div>
+        <div class="related-games">
+            <% game.relatedGames.forEach(function(relatedGame) { %>
+                <img src="<%= relatedGame.image %>" alt="<%= relatedGame.title %>">
+            <% }); %>
+        </div>
+    </div>
+
+</body>
+</html>
+
+

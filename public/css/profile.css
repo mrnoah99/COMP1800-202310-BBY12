@@ -1,8 +1,11 @@
 .profile-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 20px;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Add this line */
+  flex-direction: column; /* Add this line */
+  text-align: center;
+}
+
   
   .profile-header img {
     width: 150px;
@@ -73,28 +76,29 @@
       align-items: center;
       text-align: center;
     }
-    
+  
     .profile-header img {
       margin-right: 0;
       margin-bottom: 10px;
     }
-    
+  
     .profile-info h2 {
       font-size: 24px;
     }
-    
+  
     .profile-info p {
       font-size: 18px;
     }
-    
+  
     .profile-form {
       width: 90%;
+      margin: 0 auto; /* 추가 */
     }
-    
+  
     .profile-form label {
       font-size: 18px;
     }
-    
+  
     .profile-form input[type="text"],
     .profile-form input[type="email"],
     .profile-form input[type="password"],
@@ -103,7 +107,7 @@
       padding: 5px;
       margin-bottom: 10px;
     }
-    
+  
     .profile-form button[type="submit"],
     .profile-form button[type="button"] {
       font-size: 18px;
@@ -112,69 +116,3 @@
     }
   }
   
-  nav {
-    background-color: #104563;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    margin-bottom: 20px; /* 간격을 늘리는 속성 추가 */
-  }
-  
-  .navbar-left,
-  .navbar-right {
-    font-size: 24px;
-  }
-  
-  .navbar-center h1 {
-    margin: 0;
-  }
-  
-  .menu,
-  .settings {
-    display: none;
-    position: absolute;
-    top: 60px;
-    background-color: #104563;
-    color: #fff;
-    padding: 10px;
-    z-index: 1;
-  }
-  
-  .menu ul,
-  .settings ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-  }
-  
-  .menu ul li,
-  .settings ul li {
-    margin-bottom: 10px;
-  }
-  
-  .menu-icon:hover,
-  .settings-icon:hover {
-    cursor: pointer;
-  }
-  
-  .menu-icon,
-  .settings-icon {
-    width: 32px;
-    height: 32px;
-  }
-  
-
-  footer {
-    background-color: #104563;
-    padding: 20px;
-    text-align: center;
-    margin-top: 20px; /* 간격을 늘리는 속성 추가 */
-  }
-  
-  
-  .logo img {
-    height: 25px;
-    width: auto;
-  }
