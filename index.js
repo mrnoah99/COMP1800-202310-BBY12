@@ -253,7 +253,7 @@ app.get("/event", (req, res) => {
     res.redirect("/");
     return;
   }
-  res.render("event");
+  res.render("event", {title: "Event"});
 });
 
 app.get("/profile", (req, res) => {
