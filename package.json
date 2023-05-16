@@ -20,7 +20,7 @@
     "mongodb": "^5.4.0",
     "mongodb-connection-string-url": "^2.6.0",
     "mongoose": "^7.1.0",
-    "nodemon": "^2.0.22",
+    "nodemon": "^2.0.22"
   },
 
   "scripts": {
