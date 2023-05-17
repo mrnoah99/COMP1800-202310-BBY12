@@ -16,7 +16,6 @@ const upload = multer({ dest: 'public/uploads/' });
 
 
 
-
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
 
@@ -300,7 +299,8 @@ app.get('/popular', (req, res) => {
     }
   ];
 
-  res.render('popular.ejs', { games }); // popular.ejs 파일을 렌더링하며 games 데이터를 전달
+  res.render('popular', { games, title: 'Popular Games' });
+
 });
 
 
@@ -311,7 +311,8 @@ app.get('/gamedetail', (req, res) => {
   const gameImage = 'path/to/game/image.jpg'; // 실제 게임 이미지 경로로 대체해야 합니다.
   const similarGames = ['Similar Game 1', 'Similar Game 2']; // 실제 유사한 게임 목록으로 대체해야 합니다.
 
-  res.render('gamedetail.ejs', { gameName, gameRating, gameDescription, gameImage, similarGames });
+  res.render('gamedetail', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Game Detail' });
+
 });
 
 app.get('/profile', async (req, res) => {
@@ -324,7 +325,8 @@ app.get('/profile', async (req, res) => {
 
     const { username, email, phone, image } = user; // 필요한 사용자 정보 추출
 
-    res.render('profile', { username, email, phone, image });
+    res.render('profile', { username, email, phone, image, title: 'Profile' });
+
   } catch (error) {
     console.error('사용자 조회 오류:', error);
     res.status(500).json({ error: '사용자 조회에 실패했습니다' });
@@ -444,27 +446,29 @@ app.get('/profile', async (req, res) => {
     }
 
     // Render the profile page with the current profile image
-    res.render('profile', { image: user.image });
+    res.render('profile', { image: user.image, title: 'Profile' })
+
   } catch (error) {
     console.error("Error fetching user profile:", error);
     res.status(500).send("Error fetching user profile");
   }
 });
-
-
 app.get('/recommend', (req, res) => {
   try {
     // 게임 추천에 필요한 데이터를 가져오는 로직
     const imageUrl1 = '/img/reco1.png'; // 첫 번째 추천 이미지 경로
     const imageUrl2 = '/img/reco2.png'; // 두 번째 추천 이미지 경로
 
-    // recommend.ejs 파일을 렌더링하고 이미지 URL을 전달
-    res.render('recommend', { imageUrl1, imageUrl2 });
+    // header와 footer를 포함하여 recommend.ejs 파일을 렌더링
+    res.render('recommend', { imageUrl1, imageUrl2, title: 'Recommend' });
   } catch (error) {
     console.error('Error rendering recommend page:', error);
     res.status(500).send('Error rendering recommend page');
   }
 });
+
+
+
 
 app.get('/free', (req, res) => {
   try {
@@ -503,7 +507,8 @@ app.get('/free', (req, res) => {
     ];
 
     // free.ejs 파일을 렌더링하고 게임 목록 데이터를 전달
-    res.render('free', { games });
+    res.render('free', { games, title: 'Free Games' });
+
   } catch (error) {
     console.error('Error rendering free page:', error);
     res.status(500).send('Error rendering free page');

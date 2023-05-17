@@ -7,7 +7,9 @@
   </head>
   <body>
 
-    <%- include("../views/templates/header", { title: "free" }) %>
+    <%- include("templates/header") %>
+    <!-- whatever you need to link -->
+    <%- include("templates/navbar") %>
 
       <div class="search-container">
         <input type="text" placeholder="Search Games...">
@@ -32,7 +34,7 @@
           </div>
         <% }); %>
       </div>
-      <%- include("../views/templates/footer", { title: "free" }) %>
+      <%- include("templates/footer") %>
       <script>
           const filterBtn = document.querySelector('.filter');
           const filterMenu = document.querySelector('.filter-menu');

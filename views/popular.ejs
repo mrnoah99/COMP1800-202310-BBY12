@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8">
     <title>Profile Page</title>
     <link rel="stylesheet" href="/css/popular.css">
   </head>
   <body>
-    <%- include("../views/templates/header", { title: "popular" }) %>
+    <%- include("templates/header") %>
+    <!-- whatever you need to link -->
+    <%- include("templates/navbar") %>
 
       <div class="search-container">
         <input type="text" placeholder="Search Games...">
@@ -31,6 +33,6 @@
         <% }); %>
       </div>
 <script src="/public/js/popular.js"></script>
-<%- include("../views/templates/footer", { title: "popular" }) %>
+<%- include("templates/footer") %>
   </body>
 </html>
