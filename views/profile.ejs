@@ -3,50 +3,84 @@
   <head>
     <meta charset="UTF-8">
     <title>Profile Page</title>
-    <link rel="stylesheet" href="../public/css/profile.css">
+    <link rel="stylesheet" href="/css/profile.css">
   </head>
   <body>
-
     <div class="profile-header">
-        <img id="profile-img" src="http://cdn.onlinewebfonts.com/svg/img_24787.png" alt="User Image">
-        <div class="profile-info">
-          <h2 id="profile-nickname">Nickname</h2>
-          <p id="profile-email">Email</p>
-          <input type="file" id="image-upload">
-        </div>
-      </div>
-      
-      <div class="profile-form">
-        <form onsubmit="event.preventDefault(); saveProfile();">
-          <label for="nickname">Nickname:</label>
-          <input type="text" id="nickname" name="nickname" value="Nickname">
-      
-          <label for="email">Email:</label>
-          <input type="email" id="email" name="email" value="email@example.com">
-      
-          <label for="gender">Gender:</label>
-          <select id="gender" name="gender">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-          </select>
-      
-          <label for="interests">Interests:</label>
-          <input type="text" id="interests" name="interests" value="Interests">
-      
-          <label for="password">New Password:</label>
-          <input type="password" id="password" name="password">
-      
-          <label for="confirm-password">Confirm New Password:</label>
-          <input type="password" id="confirm-password" name="confirm-password">
-      
-          <button type="submit">Save</button>
-          <button type="button">Cancle</button>
-        </form>
-      </div>
+<!-- profile.ejs -->
+<img id="profile-image" src="<%= image ? `${image}?t=${locals.timestamp}` : '/default-image.jpg' %>" alt="User Image">
 
 
+
+
+
+
+
+      <div class="profile-info">
+        <% if (username) { %>
+          <h2><%= username %></h2>
+        <% } else { %>
+          <h2>Guest</h2>
+        <% } %>
+        <% if (email) { %>
+          <p><%= email %></p>
+        <% } %>
+        <% if (phone) { %>
+          <p><%= phone %></p>
+        <% } %>
+        <button id="edit-profile-picture-button">Edit Profile Picture</button>
+        <button id="save-profile-picture-button">Save Profile Picture</button>
+      </div>
+    </div>
+    
+      </div>
+    </div>   
+    </div>
+ 
+
+
+    <div class="profile-form">
+      <form id="password-form" action="/changePassword" method="POST">
+        <label for="password">New Password:</label>
+        <input type="password" id="password" name="newPassword">
+        
+        <label for="confirm-password">Confirm New Password:</label>
+        <input type="password" id="confirm-password" name="confirmPassword">
+        
+        <button type="submit">Save</button>
+        <button type="button">Cancel</button>
+      </form>
+    </div>
+ 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+      $("#password-form").submit(function(e) {
+        e.preventDefault();
+      
+        var newPassword = $("#password").val();
+        var confirmPassword = $("#confirm-password").val();
+      
+        if(newPassword !== confirmPassword) {
+          alert("Passwords do not match");
+          return;
+        }
+      
+        $.ajax({
+          type: "POST",
+          url: "/changePassword",
+          data: $(this).serialize(), 
+          success: function(data)
+          {
+            alert(data.message);
+          },
+          error: function(err)
+          {
+            alert(err.responseJSON.error);
+          }
+        });
+      });
+    </script>
+    <script src="/js/profile.js"></script>
   </body>
 </html>
-
 

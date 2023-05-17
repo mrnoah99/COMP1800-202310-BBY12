@@ -6,60 +6,19 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Game Detail Page</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      background-color: #f1f1f1;
-    }
-
-    h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    p {
-      margin-bottom: 10px;
-    }
-
-    .game-image {
-      max-width: 100%;
-      height: auto;
-      margin-bottom: 20px;
-    }
-  </style>
+  <link rel="stylesheet" type="text/css" href="../public/css/gamedetail.css">
 </head>
 
 <body>
-  <div class="container">
-    <h3 id="gameName"></h3>
-    <p id="gameRating"></p>
-    <p id="gameDescription"></p>
-    <img id="gameImage" class="game-image" src="" alt="Game Image">
-    <p id="similarGames"></p>
-  </div>
+    <div class="container">
+        <h3 id="gameName"></h3>
+        <p id="gameRating"></p>
+        <p id="gameDescription"></p>
+        <img id="gameImage" class="game-image" src="" alt="Game Image">
+        <p id="similarGames"></p>
+      </div>
 
-  <script>
-    const gameData = {
-      name: 'Game name',
-      rating: 'Game horoscope',
-      description: 'Detailed Description',
-      image: 'Recommend a similar game picture URL',
-      similar: ['Recommend a similar game1', 'Recommend a similar game2', 'Recommend a similar game3']
-    };
-
-    document.getElementById('gameName').textContent = gameData.name;
-    document.getElementById('gameRating').textContent = `horoscope: ${gameData.rating}`;
-    document.getElementById('gameDescription').textContent = `Detailed Description: ${gameData.description}`;
-    document.getElementById('gameImage').src = gameData.image;
-    document.getElementById('similarGames').textContent = `Recommend a similar game: ${gameData.similar.join(', ')}`;
-  </script>
+<script src="/public/js/gamedetail.js"></script>
 </body>
 
 </html>
