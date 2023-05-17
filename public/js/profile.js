@@ -44,37 +44,37 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-  // 비밀번호 변경 폼 submit 이벤트 리스너
-  window.addEventListener('DOMContentLoaded', function () {
-    var passwordForm = document.getElementById('password-form');
-    if (passwordForm) {
-      passwordForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var newPassword = document.getElementById('password').value;
-        var confirmPassword = document.getElementById('confirm-password').value;
-        if (newPassword === confirmPassword) {
-          fetch('/changePassword', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ newPassword: newPassword }),
-          })
-            .then(function (response) {
-              if (response.ok) {
-                alert('비밀번호가 성공적으로 변경되었습니다.');
-              } else {
-                alert('비밀번호 변경에 실패했습니다. 다시 시도해주세요.');
-              }
-            })
-            .catch(function (error) {
-              console.error('비밀번호 변경 오류:', error);
-              alert('비밀번호 변경에 실패했습니다. 다시 시도해주세요.');
-            });
-        } else {
-          alert('비밀번호가 일치하지 않습니다. 다시 입력해주세요.');
-        }
-      });
-    }
-  });
+// window.addEventListener('DOMContentLoaded', function () {
+//   var passwordForm = document.getElementById('password-form');
+//   if (passwordForm) {
+//     passwordForm.addEventListener('submit', function (e) {
+//       e.preventDefault();
+//       var newPassword = document.getElementById('password').value;
+//       var confirmPassword = document.getElementById('confirm-password').value;
+//       if (newPassword === confirmPassword) {
+//         fetch('/changePassword', {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           body: JSON.stringify({ newPassword: newPassword }),
+//         })
+//           .then(function (response) {
+//             if (response.ok) {
+//               alert('비밀번호가 성공적으로 변경되었습니다.');
+//             } else {
+//               throw new Error('비밀번호 변경에 실패했습니다.');
+//             }
+//           })
+//           .catch(function (error) {
+//             console.error('비밀번호 변경 오류:', error);
+//             alert(error.message); // 오류 메시지를 출력합니다.
+//           });
+//       } else {
+//         alert('비밀번호가 일치하지 않습니다. 다시 입력해주세요.');
+//       }
+//     });
+//   }
+// });
+
 
