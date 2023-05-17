@@ -86,7 +86,48 @@ app.get("/login", (req, res) => {
     const errorMsg = req.query.errorMsg;
     res.render("login", { errorMsg });
   } else {
-    res.render("index");
+    res.redirect("/");
+  }
+});
+
+app.post("/loginSubmit", async (req, res) => {
+
+  var email = req.body.email;
+  var password = req.body.password;
+
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().max(20).required(),
+  });
+
+  const validationResult = schema.validate({ email, password });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/login");
+    return;
+  }
+
+  const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
+
+  console.log(result);
+  if (result.length != 1) {
+    console.log("User is not found...");
+    res.redirect("/login");
+    return;
+  }
+  if (await bcrypt.compare(password, result[0].password)) {
+    console.log("right password");
+
+    req.session.authenticated = true;
+    req.session.username = result[0].username;
+    req.session.cookie.maxAge = expireTime;
+
+    res.redirect("/");
+    return;
+  } else {
+    console.log("wrong password");
+    res.redirect("/login?errorMsg=Invalid email/password combination.");
+    return;
   }
 });
 
@@ -181,31 +222,8 @@ app.post("/signupSubmit", async (req, res) => {
   req.session.authenticated = true;
   req.session.username = username;
   req.session.remainingQuantity = 10
-  res.redirect("/index");
+  res.redirect("/");
 });
-  const validationResult = schema.validate({ username, email, password, phone });
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
-    res.redirect("/signup");
-    return;
-  }
-
-  var hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  await userCollection.insertOne({
-    username: username,
-    password: hashedPassword,
-    email: email,
-    phone: phone,
-  });
-  console.log("User has been inserted");
-
-  req.session.authenticated = true;
-  req.session.username = username;
-  req.session.remainingQuantity = 10
-  res.redirect("/index");
-});
-
 
 app.get("/redeem", (req, res) => {
   if (!req.session.authenticated) {
@@ -245,7 +263,7 @@ app.get("/index", (req, res) => {
     return;
   }
   
-  res.render("index", { username: req.session.username });
+  res.render("index", { username: req.session.username, title: "Home Page" });
 });
 
 app.get("/event", (req, res) => {
