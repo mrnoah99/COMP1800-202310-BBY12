@@ -403,106 +403,6 @@ const imageUrl = `${image}?t=${timestamp}`;
 // save a picture. now just have binary type.
 const validImageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
 
-// app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
-//   try {
-//     if (req.file) {
-//       // Handle the uploaded image file
-//       // Update the profile image path or perform any other necessary operations
-//       console.log('Profile image uploaded:', req.file.filename);
-
-//       // Update the user's profile image path in the database
-//       const username = req.session.username; // Replace with your own user identifier
-//       const imagePath = `/uploads/${req.file.filename}`;
-
-//       await userCollection.updateOne(
-//         { username: username },
-//         { $set: { image: imagePath } }
-//       );
-
-//       console.log('Profile image path updated in the database');
-
-//       // Send a response indicating success and the updated image path
-//       res.send(imagePath);
-//     } else {
-//       res.status(400).send('No file uploaded');
-//     }
-//   } catch (error) {
-//     console.error('Error handling profile image upload:', error);
-//     res.status(500).send('Error handling profile image upload');
-//   }
-// });
-
-
-// app.get('/profile', async (req, res) => {
-//   const username = req.session.username;
-
-//   try {
-//     // Find the user in the database
-//     const user = await userCollection.findOne({ username: username });
-//     if (!user) {
-//       res.status(404).send('User not found');
-//       return;
-//     }
-
-//     // Render the profile page with the current profile image
-//     res.render('profile', { image: user.image });
-//   } catch (error) {
-//     console.error("Error fetching user profile:", error);
-//     res.status(500).send("Error fetching user profile");
-//   }
-// });
-
-// app.post("/submitProfile", upload.single("profileImage"), async (req, res) => {
-//   try {
-//     if (req.file) {
-//       // Handle the uploaded image file
-//       // Update the profile image path or perform any other necessary operations
-//       console.log("Profile image uploaded:", req.file.filename);
-
-//       // Update the user's profile image path in the database
-//       const username = req.session.username; // Replace with your own user identifier
-//       const imagePath = `/uploads/${req.file.filename}`;
-
-//       await userCollection.updateOne(
-//         { username: username },
-//         { $set: { image: imagePath } }
-//       );
-
-//       console.log("Profile image path updated in the database");
-
-//       // Send a response indicating success and the updated image path
-//       res.send(imagePath);
-//     } else {
-//       res.status(400).send("No file uploaded");
-//     }
-//   } catch (error) {
-//     console.error("Error handling profile image upload:", error);
-//     res.status(500).send("Error handling profile image upload");
-//   }
-// });
-
-// // index.js
-// app.get('/profile', async (req, res) => {
-//   const username = req.session.username;
-
-//   try {
-//     // Find the user in the database
-//     const user = await userCollection.findOne({ username: username });
-//     if (!user) {
-//       res.status(404).send('User not found');
-//       return;
-//     }
-
-//     const timestamp = Date.now(); // 타임스탬프 변수 추가
-
-//     // Render the profile page with the current profile image and timestamp
-//     res.render('profile', { image: user.image, timestamp }); // timestamp 변수 전달
-//   } catch (error) {
-//     console.error("Error fetching user profile:", error);
-//     res.status(500).send("Error fetching user profile");
-//   }
-// });
-
 
 app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
   try {
@@ -552,7 +452,63 @@ app.get('/profile', async (req, res) => {
 });
 
 
+app.get('/recommend', (req, res) => {
+  try {
+    // 게임 추천에 필요한 데이터를 가져오는 로직
+    const imageUrl1 = '/img/reco1.png'; // 첫 번째 추천 이미지 경로
+    const imageUrl2 = '/img/reco2.png'; // 두 번째 추천 이미지 경로
 
+    // recommend.ejs 파일을 렌더링하고 이미지 URL을 전달
+    res.render('recommend', { imageUrl1, imageUrl2 });
+  } catch (error) {
+    console.error('Error rendering recommend page:', error);
+    res.status(500).send('Error rendering recommend page');
+  }
+});
+
+app.get('/free', (req, res) => {
+  try {
+    // 게임 목록 데이터를 가져오는 로직
+    const games = [
+      {
+        name: 'League of Legends',
+        image: 'https://wallpaperaccess.com/full/2379009.jpg',
+        genre: 'MOBA',
+      },
+      {
+        name: 'Apex Legends',
+        image: 'https://mms.businesswire.com/media/20190204005535/en/703803/4/APEX_Primary_Art_72dpi_RGB_FIN.jpg',
+        genre: 'battle royale',
+      },
+      {
+        name: 'Warframe',
+        image: 'https://s.yimg.com/fz/api/res/1.2/TBGlJPuGrYCI.pz5Vt1JBA--~C/YXBwaWQ9c3JjaGRkO2ZpPWZpdDtoPTI2MDtxPTgwO3c9MjYw/https://s.yimg.com/zb/imgv1/30fe762d-df30-303f-aa96-d81d6621bdac/t_500x300',
+        genre: 'Online action',
+      },
+      {
+        name: 'Fortnite',
+        image: 'https://imgix.ranker.com/user_node_img/3837/76737071/original/76737071-photo-u8?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300',
+        genre: 'Survival, battle royale, sandbox',
+      },
+      {
+        name: 'Genshin Impact',
+        image: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a98cff5d-a612-49d8-a0db-175994384b20/de6gwbc-c62515e8-9411-41f1-a478-41972654fd0b.png/v1/fill/w_512,h_512,strp/genshin_impact_icon_by_kiramaru_kun_de6gwbc-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvYTk4Y2ZmNWQtYTYxMi00OWQ4LWEwZGItMTc1OTk0Mzg0YjIwXC9kZTZnd2JjLWM2MjUxNWU4LTk0MTEtNDFmMS1hNDc4LTQxOTcyNjU0ZmQwYi5wbmciLCJ3aWR0aCI6Ijw9NTEyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.aAlCN4I4hmNlQLEkdBgimNt61LuwE2URyQkrREEtPCc',
+        genre: 'Open-world adventure',
+      },
+      {
+        name: 'Call of Duty Warzone',
+        image: 'https://tse3.mm.bing.net/th?id=OIP.NSNSp4aTWGfwM_gs5uBwDwHaHa&pid=Api&P=0',
+        genre: 'Battle royale',
+      }
+    ];
+
+    // free.ejs 파일을 렌더링하고 게임 목록 데이터를 전달
+    res.render('free', { games });
+  } catch (error) {
+    console.error('Error rendering free page:', error);
+    res.status(500).send('Error rendering free page');
+  }
+});
 
 
 

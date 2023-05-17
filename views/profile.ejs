@@ -6,14 +6,14 @@
     <link rel="stylesheet" href="/css/profile.css">
   </head>
   <body>
+
+<%- include("../views/templates/header", { title: "Profile" }) %>
+
+
+
     <div class="profile-header">
 <!-- profile.ejs -->
 <img id="profile-image" src="<%= image ? `${image}?t=${locals.timestamp}` : '/default-image.jpg' %>" alt="User Image">
-
-
-
-
-
 
 
       <div class="profile-info">
@@ -51,7 +51,10 @@
         <button type="button">Cancel</button>
       </form>
     </div>
- 
+<%- include("../views/templates/footer", { title: "Profile" }) %>
+
+
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script>
       $("#password-form").submit(function(e) {

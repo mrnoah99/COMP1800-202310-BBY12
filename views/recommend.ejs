@@ -40,7 +40,7 @@
     </style>
 </head>
 <body>
-
+    <%- include("../views/templates/header", { title: "recommend" }) %>
     <div class="container">
         <a href="#" class="content">
             <img src="<%= imageUrl1 %>" alt="recommendation 1">
@@ -50,7 +50,7 @@
         </a>
         
     </div>
-
+    <%- include("../views/templates/footer", { title: "recommend" }) %>
 </body>
 </html>
 

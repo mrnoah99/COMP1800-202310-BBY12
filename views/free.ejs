@@ -3,11 +3,11 @@
   <head>
     <meta charset="UTF-8">
     <title>Free Game Page</title>
-    <link rel="stylesheet" href="/public/css/free.css">
+    <link rel="stylesheet" href="/css/free.css">
   </head>
   <body>
 
-
+    <%- include("../views/templates/header", { title: "free" }) %>
 
       <div class="search-container">
         <input type="text" placeholder="Search Games...">
@@ -16,8 +16,8 @@
         <button class="filter">Filter</button>
         <div class="filter-menu">
           <ul>
-            <li><a href="/free.html">Free Game</a></li>
-            <li><a href="/popular.html">Popular Game</a></li>
+            <li><a href="/free">Free Game</a></li>
+            <li><a href="/popular">Popular Game</a></li>
             <li><a href="#">Low and High Price</a></li>
             <li><a href="#">High and Low Price</a></li>
           </ul>
@@ -32,6 +32,7 @@
           </div>
         <% }); %>
       </div>
+      <%- include("../views/templates/footer", { title: "free" }) %>
       <script>
           const filterBtn = document.querySelector('.filter');
           const filterMenu = document.querySelector('.filter-menu');
