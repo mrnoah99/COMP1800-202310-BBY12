@@ -1,0 +1,48 @@
+.navbarbackground {
+  background-color: #104563;
+}
+
+.navbar-brand {
+  margin: auto;
+}
+
+.menu-icon-wrapper,
+.gear-icon-wrapper {
+  width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.nav-item {
+  color: white;
+}
+
+.nav-link {
+  color: #f9ffb9;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer {
+  justify-content: space-between;
+  align-items: center;
+  background-color: #104563;
+  margin-top: 5vh;
+}
+
+.footer-icon {
+  flex: 1;
+  text-align: center;
+}
+
+.footer-icon img {
+  max-width: 100%;
+  max-height: 100%;
+}
