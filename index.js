@@ -5,11 +5,12 @@ const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
-const saltRounds = 16;
+const saltRounds = 12;
+const fs = require('fs');
+const path = require('path');
 var gamesJSONData;
 
-
-const port = process.env.PORT || 3200;
+const port = process.env.PORT || 8000;
 
 const app = express();
 
@@ -185,9 +186,17 @@ app.get('/nosql-injection', async (req,res) => {
 
 });
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////Eddie's Page below////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//Sign Up and Sign Up Submit
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
+
+let remainingQuantity = 10;
+
 
 app.post("/signupSubmit", async (req, res) => {
   var username = req.body.username;
@@ -206,6 +215,7 @@ app.post("/signupSubmit", async (req, res) => {
   if (validationResult.error != null) {
     console.log(validationResult.error);
     res.redirect("/signup");
+    req.session.cdKeys = cdKeys;
     return;
   }
 
@@ -222,30 +232,61 @@ app.post("/signupSubmit", async (req, res) => {
   req.session.authenticated = true;
   req.session.username = username;
   req.session.remainingQuantity = 10
-  res.redirect("/");
+  req.session.remainingQuantity = remainingQuantity;
+  res.redirect("/event");
 });
 
+app.post("/getCDKey", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  const user = await userCollection.findOne({ username: req.session.username });
+  if (!user || user.cdKeys.length === 0) {
+    res.status(400).send("No CD keys left");
+    return;
+  }
+  const cdKey = user.cdKeys.pop();
+  await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
+  res.json({ cdKey });
+});
+
+
+//Warehouse page
+// app.get("/warehouse", (req, res) => {
+//   if (!req.session.authenticated) {
+//     res.redirect("/");
+//     return;
+//   }
+//   res.render("warehouse");
+// });
+
+app.get("/warehouse", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  const user = await userCollection.findOne({ username: req.session.username });
+  res.render("warehouse" ,{ title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
+});
+
+
+//Redeem Page and Functionality
 app.get("/redeem", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
   }
-  res.render("redeem");
+  res.render("redeem", {title: "Redeem"})
 });
 
-app.get("/warehouse", (req, res) => {
-  // if (!req.session.authenticated) {
-  //   res.redirect("/");
-  //   return;
-  // }
-  res.render("warehouse");
-});
 app.get("/getRemainingQuantity", (req, res) => {
   if (!req.session.authenticated) {
     res.status(401).send("Unauthorized");
     return;
   }
-  res.json({ remainingQuantity: req.session.remainingQuantity });
+  res.json({ remainingQuantity: remainingQuantity });
 });
 
 app.post("/updateRemainingQuantity", (req, res) => {
@@ -256,6 +297,83 @@ app.post("/updateRemainingQuantity", (req, res) => {
   req.session.remainingQuantity -= 1;
   res.json({ remainingQuantity: req.session.remainingQuantity });
 });
+
+// app.post("/resetRemainingQuantity", (req, res) => {
+//   if (!req.session.authenticated) {
+//     res.status(401).send("Unauthorized");
+//     return;
+//   }
+//   remainingQuantity = 10;
+//   res.json({ remainingQuantity: remainingQuantity });
+// });
+
+
+// Read and parse cdk.txt
+let cdkKeys = fs.readFileSync(path.join(__dirname, 'cdk.txt'), 'utf8').split('\n').filter(key => key);
+
+app.get("/redeemKey", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  // Get the user from the database
+  const user = await userCollection.findOne({ username: req.session.username });
+  
+  // If the user has already redeemed a key, return an error
+  if (user.redeemedKey) {
+    res.status(400).json({ message: "You have already redeemed a key.", cdKey: user.redeemedKey });
+    return;
+  }
+
+  // If no keys are left, return an error
+  if (cdkKeys.length === 0 || remainingQuantity === 0) {
+    res.status(400).json({ message: "No keys left to redeem." });
+    return;
+  }
+
+  // Pick a random key
+  const randomIndex = Math.floor(Math.random() * cdkKeys.length);
+  const redeemedKey = cdkKeys[randomIndex];
+  cdkKeys = cdkKeys.filter((_, index) => index !== randomIndex);
+
+  // Update the user document in the database
+  await userCollection.updateOne({ username: req.session.username }, { $set: { redeemedKey } });
+
+  // Write the updated keys from cdk.txt
+  fs.writeFileSync(path.join(__dirname, 'cdk.txt'), cdkKeys.join('\n'));
+
+  remainingQuantity -= 1;
+
+  // Respond with the redeemed key
+  res.json({ cdKey: redeemedKey, remainingQuantity: remainingQuantity });
+});
+
+
+//Event Page
+app.get("/event", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("event", {title: "Event"})
+});
+
+
+//Setting Page
+app.get("/setting", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("setting", {title: "Setting"})
+});
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////Eddie's Page above///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 app.get("/index", (req, res) => {
   if (!req.session.authenticated) {
@@ -282,9 +400,43 @@ app.get("/profile", (req, res) => {
   res.render("profile", {nickname: "test", email: "test@email.ca"});
 });
 
-app.get("/pricecompare", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
+app.post("/loginSubmit", async (req, res) => {
+
+  var email = req.body.email;
+  var password = req.body.password;
+
+  const schema = Joi.object({
+    email: Joi.string().email().required(),
+    password: Joi.string().max(20).required(),
+  });
+
+  const validationResult = schema.validate({ email, password });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/login");
+    return;
+  }
+
+  const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
+
+  console.log(result);
+  if (result.length != 1) {
+    console.log("User is not found...");
+    res.redirect("/login");
+    return;
+  }
+  if (await bcrypt.compare(password, result[0].password)) {
+    console.log("right password");
+
+    req.session.authenticated = true;
+    req.session.username = result[0].username;
+    req.session.cookie.maxAge = expireTime;
+
+    res.redirect("/event");
+    return;
+  } else {
+    console.log("wrong password");
+    res.redirect("/login?errorMsg=Invalid email/password combination.");
     return;
   }
   res.render("pricecompare");
