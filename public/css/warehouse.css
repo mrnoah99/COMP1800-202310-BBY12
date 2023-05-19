@@ -4,12 +4,11 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    height: 85vh;
     border: 1px solid black;
-    border-radius: 30px;
-    grid-gap: 30px;
+    grid-gap: 50px;
     width: 100%;
-    background-color: #8294C4;
+    background-color: #E5ECEC;
 }
 
 .key1 {
@@ -22,7 +21,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-    background-color: #ACB1D6;
+    background-color: #FCFDFD;
 }
 
 .key1_name {
@@ -45,7 +44,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-    background-color: #DBDFEA;
+    background-color: #FCFDFD;
 }
 
 .key2_name {
@@ -69,7 +68,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-    background-color: #FFEAD2;
+    background-color: #FCFDFD;
 }
 
 .key3_name {
@@ -82,7 +81,25 @@
     font-size: 18px;
 }
 
-img {
+.key1 img {
+    position: absolute; 
+    top: 50%; 
+    right: 10px; 
+    transform: translateY(-50%); 
+    width: 30px;
+}
+
+
+.key2 img {
+    position: absolute; 
+    top: 50%; 
+    right: 10px; 
+    transform: translateY(-50%); 
+    width: 30px;
+}
+
+
+.key3 img {
     position: absolute; 
     top: 50%; 
     right: 10px; 

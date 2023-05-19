@@ -1,112 +1,80 @@
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('.profile-form form');
-    const newPassword = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirm-password');
-    const saveButton = document.querySelector('button[type="submit"]');
-  
-    saveButton.addEventListener('click', function(event) {
-      event.preventDefault();
-  
-      if (newPassword.value === confirmPassword.value) {
-        // Send the data to the server for updating the password
-        updatePassword(newPassword.value);
-      } else {
-        alert('New passwords do not match. Please try again.');
-      }
-    });
-  });
-  
-  function updatePassword(newPassword) {
-    // Replace this URL with the API endpoint to update the password in your server
-    const apiUrl = 'https://your-api-url.com/update-password';
-  
-    // Replace this object with the appropriate data format required by your API
-    const data = {
-      newPassword: newPassword
-    };
-  
-    fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          alert('Password updated successfully.');
-        } else {
-          alert('Error updating password. Please try again.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('Error updating password. Please try again.');
-      });
-  }
-  
+document.addEventListener('DOMContentLoaded', () => {
+  const profileImageElement = document.getElementById('profile-image');
+  const editProfilePictureButton = document.getElementById('edit-profile-picture-button');
 
-  document.getElementById('image-upload').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        // Update the image preview
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('profile-img').src = e.target.result;
-        }
-        reader.readAsDataURL(file);
-        
-        // Send the image to the server
-        const formData = new FormData();
-        formData.append('image', file);
-        fetch('/upload-profile-image', { // Replace this with the correct API endpoint
-            method: 'POST',
-            body: formData
-        }).then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Profile image updated successfully.');
-                // The server should return the URL of the new image
-                document.getElementById('profile-img').src = data.imageUrl;
+  editProfilePictureButton.addEventListener('click', () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.addEventListener('change', (event) => {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        const fileData = e.target.result;
+        profileImageElement.src = fileData; // Assign the file data directly to src
+
+        // Save the file data to a variable or use it directly in the fetch request
+        const saveProfilePictureButton = document.getElementById('save-profile-picture-button');
+        saveProfilePictureButton.addEventListener('click', async () => {
+          const formData = new FormData();
+          formData.append('profileImage', file); // Append the file itself, not the file data
+
+          try {
+            const response = await fetch('/submitProfile', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (response.ok) {
+              console.log('프로필 이미지가 성공적으로 업로드되었습니다.');
             } else {
-                alert('Error updating profile image. Please try again.');
+              console.error('프로필 이미지 업로드 실패:', response.statusText);
             }
-        }).catch(error => {
-            console.error('Error:', error);
-            alert('Error updating profile image. Please try again.');
+          } catch (error) {
+            console.error('프로필 이미지 업로드 오류:', error);
+          }
         });
-    }
+      };
+
+      reader.readAsDataURL(file);
+    });
+
+    input.click();
+  });
 });
 
+// window.addEventListener('DOMContentLoaded', function () {
+//   var passwordForm = document.getElementById('password-form');
+//   if (passwordForm) {
+//     passwordForm.addEventListener('submit', function (e) {
+//       e.preventDefault();
+//       var newPassword = document.getElementById('password').value;
+//       var confirmPassword = document.getElementById('confirm-password').value;
+//       if (newPassword === confirmPassword) {
+//         fetch('/changePassword', {
+//           method: 'POST',
+//           headers: {
+//             'Content-Type': 'application/json',
+//           },
+//           body: JSON.stringify({ newPassword: newPassword }),
+//         })
+//           .then(function (response) {
+//             if (response.ok) {
+//               alert('비밀번호가 성공적으로 변경되었습니다.');
+//             } else {
+//               throw new Error('비밀번호 변경에 실패했습니다.');
+//             }
+//           })
+//           .catch(function (error) {
+//             console.error('비밀번호 변경 오류:', error);
+//             alert(error.message); // 오류 메시지를 출력합니다.
+//           });
+//       } else {
+//         alert('비밀번호가 일치하지 않습니다. 다시 입력해주세요.');
+//       }
+//     });
+//   }
+// });
 
-function saveProfile() {
-    // Get the input values
-    const nickname = document.getElementById('nickname').value;
-    const email = document.getElementById('email').value;
 
-    // Create an object to send to the server
-    const profileData = {
-        nickname: nickname,
-        email: email
-    };
-
-    // Send the data to the server
-    fetch('/update-profile', { // Replace this with the correct API endpoint
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(profileData)
-    }).then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Profile updated successfully.');
-        } else {
-            alert('Error updating profile. Please try again.');
-        }
-    }).catch(error => {
-        console.error('Error:', error);
-        alert('Error updating profile. Please try again.');
-    });
-}

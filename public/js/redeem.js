@@ -1,73 +1,49 @@
 const redeemButton = document.getElementById("redeem_button");
 const remainElement = document.querySelector(".redeem_remain");
 
-async function fetchRemainingQuantity() {
+async function fetchRemainingKeys() {
   try {
-    const response = await fetch("/getRemainingQuantity");
+    const response = await fetch("/getRemainingQuantity", { method: "GET" });
     if (response.ok) {
       const data = await response.json();
       remainElement.textContent = data.remainingQuantity;
       if (data.remainingQuantity === 0) {
         redeemButton.disabled = true;
+        redeemButton.innerHTML = "No keys remaining";
       }
     } else {
-      console.error("Failed to fetch remaining quantity");
+      console.error("Failed to fetch remaining keys");
     }
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
-async function updateRemainingQuantity() {
+
+async function redeemKey() {
   try {
-    const response = await fetch("/updateRemainingQuantity", { method: "POST" });
+    const response = await fetch("/redeemKey", { method: "GET" });
     if (response.ok) {
       const data = await response.json();
-      remainElement.textContent = data.remainingQuantity;
-      if (data.remainingQuantity === 0) {
-        redeemButton.disabled = true;
-      }
+      alert("Redeem successfully! Your CD key is " + data.cdKey);
+      redeemButton.disabled = true;
+      redeemButton.innerHTML = "Key Redeemed";
+      fetchRemainingKeys();
     } else {
-      console.error("Failed to update remaining quantity");
+      const data = await response.json();
+      alert(data.message);
+      if (data.cdKey) {
+        redeemButton.disabled = true;
+        redeemButton.innerHTML = "Key Redeemed";
+      }
     }
   } catch (error) {
     console.error("Error:", error);
   }
 }
 
-function generateCDKey() {
-  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-  let cdKey = "";
 
-  for (let i = 0; i < 12; i++) {
-    const randomIndex = Math.floor(Math.random() * characters.length);
-    cdKey += characters[randomIndex];
-    if ((i + 1) % 4 === 0 && i !== 11) {
-      cdKey += "-";
-    }
-  }
+redeemButton.addEventListener("click", redeemKey);
+fetchRemainingKeys();
 
-  return cdKey;
-}
-
-async function redeem() {
-  document.getElementById("redeem_button").innerHTML = "Redeemed";
-  document.getElementById("redeem_button").disabled = true;
-  const cdKey = generateCDKey();
-  alert("Redeem successfully! Your CD key is " + cdKey);
-  await updateRemainingQuantity();
-
-  // update the CD key in the warehouse page
-  const warehouseKeys = document.querySelectorAll(".key1_details, .key2_details, .key3_details");
-  for (let i = 0; i < warehouseKeys.length; i++) {
-    const keyDetails = warehouseKeys[i].textContent;
-    if (keyDetails.includes("It takes Two")) {
-      warehouseKeys[i].textContent = cdKey;
-      break;
-    }
-  }
-}
-
-redeemButton.addEventListener("click", redeem);
-fetchRemainingQuantity();
 
