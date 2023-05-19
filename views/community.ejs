@@ -1,4 +1,3 @@
-<%- include("templates/header") %>
 
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
@@ -17,10 +16,11 @@
         #comnav {
             margin-bottom: 10vh;
         }
+
+
     </style>
-
-    <%- include("templates/navbar") %>
-
+<%- include("templates/header") %>
+<%- include("templates/navbar") %>
         <body>
             <div class="container my-3">
                 <% posts.forEach(function(post) { %>
