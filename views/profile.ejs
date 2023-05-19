@@ -10,7 +10,15 @@
     <%- include("templates/header") %>
     <!-- whatever you need to link -->
     <%- include("templates/navbar") %>
+  <!-- Add a transparent button below navbar -->
+  <button id="secret-button" style="opacity: 0; position: fixed; right: 0;">Hidden Button</button>
 
+
+  <!-- Image overlay -->
+  <div id="gif-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;">
+    <img id="love-gif" src="/img/tong.gif" alt="Love GIF" style="width: 100%; height: 100%;">
+  </div>
+    
 
 
     <div class="profile-header">
@@ -58,6 +66,7 @@
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
     <script>
       $("#password-form").submit(function(e) {
         e.preventDefault();
@@ -85,6 +94,15 @@
         });
       });
     </script>
+
+      <script>
+        $("#secret-button").click(function() {
+          $("#gif-overlay").show();
+          setTimeout(function() {
+            $("#gif-overlay").hide();
+          }, 3000); // 3 seconds
+        });
+      </script>
     <script src="/js/profile.js"></script>
   </body>
 </html>
