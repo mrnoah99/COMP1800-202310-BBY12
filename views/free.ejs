@@ -7,6 +7,7 @@
   </head>
   <body>
 
+
     <%- include("templates/header") %>
     <!-- whatever you need to link -->
     <%- include("templates/navbar") %>
@@ -31,9 +32,11 @@
             <img src="<%= game.image %>" alt="Game">
             <h2><%= game.name %></h2>
             <p>Genres (Video game): <%= game.genres %></p>
+            <a href="/games/<%= game.template %>">Learn More</a>
           </div>
         <% }); %>
       </div>
+      
       <%- include("templates/footer") %>
       <script>
           const filterBtn = document.querySelector('.filter');

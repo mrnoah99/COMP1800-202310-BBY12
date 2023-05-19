@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Profile Page</title>
+    <title>Popular Game Page</title>
     <link rel="stylesheet" href="/css/popular.css">
   </head>
   <body>
@@ -24,15 +24,20 @@
         </div>
       </div>
       <div class="container">
-        <% games.forEach(game => { %>
-            <div class="box">
-              <img src="<%= game.image %>" alt="Game">
-              <h2><%= game.name %></h2>
-              <p>Genres (Video game): <%= game.genre %></p>
-            </div>
+        <% games.forEach(function(game) { %> 
+          <div class="box">
+            <img src="<%= game.image %>" alt="Game">
+            <h2><%= game.name %></h2>
+            <p>Genres (Video game): <%= game.genres %></p>
+            <a href="/games/<%= game.template %>">Learn More</a>
+         
+          </div>
         <% }); %>
       </div>
-<script src="/public/js/popular.js"></script>
+      
+      
+      
+<script src="/js/popular.js"></script>
 <%- include("templates/footer") %>
   </body>
 </html>
