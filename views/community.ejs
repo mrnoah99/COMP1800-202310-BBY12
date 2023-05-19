@@ -1,8 +1,12 @@
 
 
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+<%- include("templates/header") %>
+
+
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+
 
     <style>
         .card {
@@ -19,17 +23,18 @@
 
 
     </style>
-<%- include("templates/header") %>
-<%- include("templates/navbar") %>
-        <body>
+
+    <%- include("templates/navbar") %>
             <div class="container my-3">
-                <% posts.forEach(function(post) { %>
+                <!-- <% posts.forEach(function(post) { %> -->
+
                     <div class="card mb-3">
                         <div class="card-body">
                             <a href="/community/<%= post._id %>/details" style="text-decoration: none; color: inherit;">
                                 <div class="row border-bottom pb-2 mb-2">
                                     <div class="col-md-8">
                                         <h5 class="card-title">
+
                                             <%= post.title %>
                                         </h5>
                                     </div>
@@ -44,6 +49,7 @@
                                 </p> <!-- Assuming post.author holds author name -->
                                 <p class="card-text">
                                     <%- (post.preview || '' ).split('\n').join('<br>') %>
+
                                 </p>
                             </a>
                             <div class="btn-group float-right">
@@ -54,7 +60,9 @@
 
                                     <i class="fa fa-thumbs-up"></i>
                                     <span class="like-count">
+
                                         <%= post.likers ? post.likers.length : 0 %>
+
                                     </span>
 
                                 </button>
@@ -64,7 +72,11 @@
                             </div>
                         </div>
                     </div>
+
                     <% }); %>
+
+                   
+
 
                         <div class="input-group mb-3">
                             <input type="text" class="form-control" placeholder="Search posts..."
@@ -79,6 +91,7 @@
 
             <nav aria-label="Page navigation" id="comnav">
                 <ul class="pagination justify-content-center">
+
                     <% for(let i=1; i <=totalPages; i++) { %>
                         <li class="page-item <%= currentPage === i ? 'active' : '' %>">
                             <a class="page-link" href="/community?page=<%= i %>">
@@ -89,6 +102,8 @@
                 </ul>
             </nav>
             <script src="/js/like.js"></script>
+
+
 
 
 

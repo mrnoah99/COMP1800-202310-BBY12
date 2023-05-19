@@ -1,34 +1,22 @@
 body {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
     margin: 0;
     padding: 0;
-    background: #f0f0f0;
+    background-color: #f0f0f0;
 }
 .container {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    justify-content: space-around;
+    flex-direction: column;
     margin-top: 50px;
 }
 .content {
     margin: 20px;
-    width: 90%;  /* 사진의 넓이를 확장 */
-    height: 400px;  /* 사진의 높이를 확장 */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: #fff;
-    background-size: cover;
-    text-shadow: 2px 2px 4px #000000;
     border-radius: 20px;
-    overflow: hidden;
 }
 img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    width: 300px;
+    height: auto;
 }
