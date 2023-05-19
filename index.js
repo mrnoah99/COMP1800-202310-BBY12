@@ -17,6 +17,11 @@ const upload = multer({ dest: 'public/uploads/' });
 
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
+
+var { database } = require("./databaseConnection");
+const mongoose = require("mongoose");
+const ObjectID = mongoose.Types.ObjectId;
+
 var gamesJSONData;
 
 const app = express();
@@ -44,7 +49,9 @@ var { database } = include("databaseConnection");
 const userCollection = database.db(mongodb_database).collection("users");
 const postCollection = database.db(mongodb_database).collection("posts");
 
+
 const port = process.env.PORT || 3200;
+
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -79,6 +86,219 @@ fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
     console.error("Error parsing JSON: ", error);
   }
 });
+
+  const schema = Joi.string().max(100).required();
+  const validationResult = schema.validate(name);
+
+  var invalid = false;
+  //If we didn't use Joi to validate and check for a valid URL parameter below
+  // we could run our userCollection.find and it would be possible to attack.
+  // A URL parameter of user[$ne]=name would get executed as a MongoDB command
+  // and may result in revealing information about all users or a successful
+  // login without knowing the correct password.
+  if (validationResult.error != null) {
+    invalid = true;
+    console.log(validationResult.error);
+    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    //    return;
+  }
+  var numRows = -1;
+  //var numRows2 = -1;
+  try {
+    const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
+    //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
+    //console.log(result);
+    numRows = result.length;
+    //numRows2 = result2.length;
+  }
+  catch (err) {
+    console.log(err);
+    res.send(`<h1>Error querying db</h1>`);
+    return;
+  }
+
+  console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
+
+  // var query = {
+  //     $where: "this.name === '" + req.body.username + "'"
+  // }
+
+  // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
+
+  // console.log(result2);
+
+  res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
+  //res.send(`<h1>Hello</h1>`);
+
+
+
+
+// const communityRouter = require('./routes/community');
+// app.use('/community', communityRouter);
+
+
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
+
+app.post("/signupSubmit", async (req, res) => {
+  var username = req.body.username;
+  var password = req.body.password;
+  var email = req.body.email;
+  var phone = req.body.phone;
+
+  const schema = Joi.object({
+    username: Joi.string().alphanum().max(20).required(),
+    password: Joi.string().max(20).required(),
+    email: Joi.string().email().required(),
+    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
+  });
+
+  const validationResult = schema.validate({ username, email, password, phone });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/signup");
+    return;
+  }
+
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  await userCollection.insertOne({
+    username: username,
+    password: hashedPassword,
+    email: email,
+    phone: phone,
+  });
+  console.log("User has been inserted");
+
+  req.session.authenticated = true;
+  req.session.username = username;
+  req.session.remainingQuantity = 10
+  res.redirect("/index");
+});
+
+function requireLogin(req, res, next) {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  } else {
+    next();
+  }
+}
+
+app.get("/community", requireLogin, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = 5;
+  const skip = (page - 1) * pageSize;
+
+  try {
+    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
+    const totalPosts = await postCollection.countDocuments();
+    const totalPages = Math.ceil(totalPosts / pageSize);
+
+    res.render("community", { posts: posts, totalPages: totalPages, currentPage: page, title: "Community" });
+  } catch (err) {
+    console.log(err);
+    console.error(err);
+    res.send("Error while fetching posts");
+  }
+});
+
+app.get("/community/:postId/details", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+    res.render("post", { post: post, title: "Community" });
+  } catch (err) {
+    console.error(err);
+    res.send("Error while fetching post details");
+  }
+});
+
+
+app.post("/community", async (req, res) => {
+  const newPost = {
+    author: req.body.author,
+    title: req.body.title,
+    content: req.body.content,
+    date: new Date(),
+    preview: req.body.content.split('\n').slice(0, 4).join('\n') + '...',
+    likes: [] // Make sure this line is there
+  };
+
+  try {
+    await postCollection.insertOne(newPost);
+    res.redirect("/community");
+  } catch (err) {
+    console.log(err);
+    res.send("Error while inserting post");
+  }
+});
+
+app.post("/community/write", function (req, res) {
+  const { title, author, content } = req.body;
+
+  const newPost = {
+    title: title,
+    author: author,
+    content: content,
+    date: new Date(),
+    preview: content.split('\n').slice(0, 4).join('\n') + '...'
+  };
+
+  postCollection.insertOne(newPost)
+    .then(result => {
+      console.log('Post added successfully');
+      res.redirect('/community');
+    })
+    .catch(error => console.error(error));
+});
+
+app.get("/community/write", requireLogin, (req, res) => {
+  res.render("communitywrite",{title: "Community"});
+});
+
+app.post("/community/like/:id", async (req, res) => {
+  try {
+    const username = req.session.username;
+    if (!username) {
+      return res.json({ success: false, message: "Please log in." });
+    }
+    const post = await Post.findOne({ _id: req.params.id });
+    if (!post) {
+      return res.json({ success: false, message: "Post not found." });
+    }
+
+    post.likers = post.likers || [];
+
+    const alreadyLiked = post.likers.includes(username);
+
+
+    if (alreadyLiked) {
+
+      post.likers = post.likers.filter((liker) => liker !== username);
+    } else {
+
+      post.likers.push(username);
+    }
+
+    await post.save();
+    return res.json({ success: true, liked: !alreadyLiked });
+  } catch (error) {
+    console.error(error);
+    return res.json({ success: false, message: "An error occurred." });
+  }
+});
+
+
+app.get("/redeem", (req, res) => {
+  // if (!req.session.authenticated) {
+  //   res.redirect("/");
+  //   return;
+  // }
+  res.render("redeem");
+});
+
 
 app.get("/", (req, res) => {
   if (!req.session.authenticated) {
@@ -192,7 +412,11 @@ app.get('/nosql-injection', async (req, res) => {
   res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
   //res.send(`<h1>Hello</h1>`);
 
+
+
+
 });
+
 
 app.get("/signup", (req, res) => {
   res.render("signup");
@@ -373,6 +597,25 @@ app.get("/redeem", async (req, res) => {
   await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
   res.json({ cdKey });
 });
+
+
+app.get("/redeem", async (req, res) => {
+   if (!req.session.authenticated) {
+     res.redirect("/");
+     return;
+  }
+  res.render("redeem");
+  const user = await userCollection.findOne({ username: req.session.username });
+  if (!user || user.cdKeys.length === 0) {
+    res.status(400).send("No CD keys left");
+    return;
+  }
+  const cdKey = user.cdKeys.pop();
+  await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
+  res.json({ cdKey });
+});
+
+
 
 //Warehouse page
 // app.get("/warehouse", (req, res) => {
