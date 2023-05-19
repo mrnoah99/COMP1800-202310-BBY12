@@ -3,11 +3,14 @@
   <head>
     <meta charset="UTF-8">
     <title>Free Game Page</title>
-    <link rel="stylesheet" href="/public/css/free.css">
+    <link rel="stylesheet" href="/css/free.css">
   </head>
   <body>
 
 
+    <%- include("templates/header") %>
+    <!-- whatever you need to link -->
+    <%- include("templates/navbar") %>
 
       <div class="search-container">
         <input type="text" placeholder="Search Games...">
@@ -16,8 +19,8 @@
         <button class="filter">Filter</button>
         <div class="filter-menu">
           <ul>
-            <li><a href="/free.html">Free Game</a></li>
-            <li><a href="/popular.html">Popular Game</a></li>
+            <li><a href="/free">Free Game</a></li>
+            <li><a href="/popular">Popular Game</a></li>
             <li><a href="#">Low and High Price</a></li>
             <li><a href="#">High and Low Price</a></li>
           </ul>
@@ -29,9 +32,12 @@
             <img src="<%= game.image %>" alt="Game">
             <h2><%= game.name %></h2>
             <p>Genres (Video game): <%= game.genres %></p>
+            <a href="/games/<%= game.template %>">Learn More</a>
           </div>
         <% }); %>
       </div>
+      
+      <%- include("templates/footer") %>
       <script>
           const filterBtn = document.querySelector('.filter');
           const filterMenu = document.querySelector('.filter-menu');
