@@ -197,6 +197,9 @@ app.get('/nosql-injection', async (req,res) => {
 
 });
 
+const communityRouter = require('./routes/community');
+app.use('/community', communityRouter);
+
 
 app.get("/signup", (req, res) => {
   res.render("signup");
@@ -249,6 +252,12 @@ app.post("/getCDKey", async (req, res) => {
     return;
   }
 
+app.get("/redeem", (req, res) => {
+   if (!req.session.authenticated) {
+     res.redirect("/");
+     return;
+  }
+  res.render("redeem");
   const user = await userCollection.findOne({ username: req.session.username });
   if (!user || user.cdKeys.length === 0) {
     res.status(400).send("No CD keys left");
@@ -375,12 +384,6 @@ app.get("/setting", (req, res) => {
   }
   res.render("setting", {title: "Setting"})
 });
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////Eddie's Page above///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
 
 app.get("/index", (req, res) => {
   if (!req.session.authenticated) {
