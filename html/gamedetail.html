@@ -1,58 +1,24 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-    <title>Game Detail</title>
-    <style>
-        .container {
-            background-color: #f1f1f1;
-            width: 80%;
-            margin: auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .title {
-            font-size: 2.5em; /* Increased the font size */
-            margin-bottom: 20px;
-        }
-        .reviews, .price {
-            font-size: 1.4em; /* Increased the font size */
-            margin-bottom: 10px;
-        }
-        .description {
-            font-size: 1.2em; /* Increased the font size */
-            margin-bottom: 20px;
-        }
-        .game-image {
-            width: 100%;
-            height: 500px; /* Increased the height of the image */
-            object-fit: cover;
-            margin-bottom: 20px;
-        }
-        .related-games {
-            display: flex;
-            justify-content: space-between;
-        }
-        .related-games img {
-            width: 24%;
-            height: 200px;
-            object-fit: cover;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Detail Page</title>
+  <link rel="stylesheet" type="text/css" href="../public/css/gamedetail.css">
 </head>
+
 <body>
     <div class="container">
-        <div class="title">Game Title</div>
-        <div class="reviews">Overall Reviews</div>
-        <div class="price">Price</div>
-        <div class="description">Description</div>
-        <img class="game-image" src="/public/img/gaming.jpg" alt="game image">
-        <div>More Games Like This...</div>
-        <div class="related-games">
-            <img src="/public/img/gameing1.jpg" alt="related game 1">
-            <img src="/public/img/gaming2.jpg" alt="related game 2">
-            <img src="/public/img/gaming3.jpg" alt="related game 3">
-            <img src="/public/img/gaming4.jpg" alt="related game 4">
-        </div>
-    </div>
+        <h3 id="gameName"></h3>
+        <p id="gameRating"></p>
+        <p id="gameDescription"></p>
+        <img id="gameImage" class="game-image" src="" alt="Game Image">
+        <p id="similarGames"></p>
+      </div>
+
+<script src="/public/js/gamedetail.js"></script>
 </body>
+
 </html>
