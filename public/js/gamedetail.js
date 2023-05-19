@@ -42,12 +42,12 @@
 //       console.error('Error:', error);
 //       });
 
-function openHoverMenu() {
+function openHoverMenu(id) {
   let frame = document.getElementById("popup");
   frame.style = "display: inline;";
 }
 
-function closeHoverMenu() {
+function closeHoverMenu(id) {
   let frame = document.getElementById("popup");
   frame.style = "display: none;";
 }

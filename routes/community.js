@@ -26,7 +26,7 @@ router.get('/', requireLogin, async (req, res) => {
     const totalPosts = await postCollection.countDocuments();
     const totalPages = Math.ceil(totalPosts / pageSize);
 
-    res.render('community', { posts: posts, totalPages: totalPages, currentPage: page, title:'Community'});
+    res.render('community', {posts: posts, totalPages: totalPages, currentPage: page, title:'Community'});
   } catch (err) {
     console.log(err);
     console.error(err);
@@ -89,10 +89,9 @@ router.post('/write', function(req, res) {
       .catch(error => console.error(error));
 });
 
-router.get('/write', requireLogin, (req, res) => {
-  res.render('communitywrite');
-});
-
+// router.get('/write', requireLogin, (req, res) => {
+//   res.render('communitywrite', {title: "Community Post"});
+// });
 
 router.post("/like/:id", async (req, res) => {
   try {

@@ -42,11 +42,11 @@ body {
   margin-bottom: 10px;
 }
 
-#similarTitle {
+.similarTitle {
   font-size: 16pt;
 }
 
-#similarGames {
+.similarGames {
   font-size: 12pt;
   color: #777;
   margin-bottom: 10px;
