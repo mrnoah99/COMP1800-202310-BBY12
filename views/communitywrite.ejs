@@ -1,0 +1,28 @@
+<%- include("templates/header") %>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <%- include("templates/navbar") %>
+            <form action="/community/write" method="POST">
+                <div class="form-group">
+                    <label for="authorName">Author Name</label>
+                    <input type="text" class="form-control" id="authorName" name="author" required>
+                </div>
+                <div class="form-group">
+                    <label for="postTitle">Post Title</label>
+                    <input type="text" class="form-control" id="postTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="postContent">Post Content</label>
+                    <textarea class="form-control" id="postContent" name="content" required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+
+
+            <script src="/js/communitywrite.js"></script>
+
+
+
+    <%- include("templates/footer") %>

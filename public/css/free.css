@@ -1,0 +1,103 @@
+/* 검색창 스타일 */
+.search-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+  }
+  
+  .search-container input[type="text"] {
+    padding: 10px;
+    border: none;
+    border-bottom: 2px solid #ccc;
+    font-size: 16px;
+    width: 400px;
+    max-width: 90%;
+    text-align: center;
+  }
+  
+/* 필터 버튼 스타일 */
+.filter-container {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .filter {
+    padding: 10px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .filter-menu {
+    display: none;
+    position: absolute;
+    top: 100%;   /* add this line */
+    left: 50%;   /* add this line */
+    transform: translateX(-50%);   /* add this line */
+    background-color: #f9f9f9;
+    width: 200px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  .show {
+    display: block;
+  }
+  
+  .filter-menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .filter-menu li {
+    text-align: center;
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .filter-menu li:hover {
+    background-color: #f1f1f1;
+  }
+  
+  
+  .container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-gap: 10px; /* reduce grid gap to 10px */
+    justify-items: center;
+    margin-top: 50px;
+  }
+  
+  .box {
+    text-align: center;
+    background-color: #f2f2f2; /* 박스에 연한 회색 배경 추가 */
+    padding: 10px; /* 박스 내부에 여백 추가 */
+    margin-bottom: 5px; /* reduce box margin to 5px */
+    width: 300px; /* specify a width */
+    height: 400px; /* specify a height */
+    overflow: hidden; /* hide overflowing content */
+  }
+  
+  .box img {
+    width: 100%;
+    height: 75%; /* set to 60% of the parent's dimensions */
+    object-fit: cover; /* this will ensure that the images cover the entire space without distorting */
+  }
+  
+  .box h2 {
+    font-size: 24px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  
+  .box p {
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 10px;
+  }
+  

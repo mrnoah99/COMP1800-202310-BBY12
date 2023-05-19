@@ -1,0 +1,151 @@
+p {
+    font-family: 'Cabin', sans-serif;
+}
+hr {
+    color: rgb(0, 0, 0);
+}
+
+html {
+    background-color: rgb(240, 245, 245);
+}
+
+.event1 {
+    border: 1px solid #000;
+    border-radius: 25px;
+    margin: 5px;
+    align-items: center;
+    font-family: 'Cabin', sans-serif;
+    height: 180px;
+    background-image: url(/img/it_takes_two.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.right-align {
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+
+#event1_button {
+    margin-right: 20px;
+    font-size: 18px;
+    height: 40px;
+    margin-top: 10px;
+}
+
+.even1_h3 {
+    color: white;
+    font-size: 25px;
+    font-family: 'Cabin', sans-serif;
+    margin-left: 20px;
+    margin-top: 15px;
+}
+
+.event1_p {
+    color: white;
+    position: absolute;
+    left: 25px;
+    font-size: 20px;
+    margin-top: 90px;
+}
+
+.event2 {
+    border: 1px solid #000;
+    border-radius: 25px;
+    margin: 5px;
+    font-family: 'Cabin', sans-serif;
+    align-items: center;
+    height: 180px;
+    background-image: url(/img/party_animals.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.even2_h3 {
+    color: rgb(113, 45, 45);
+    font-size: 30px;
+    margin-left: 20px;
+}
+
+#event2_button {
+    margin-right: 20px;
+    font-size: 18px;
+    height: 40px;
+    margin-top: 10px;
+}
+
+.event2_p {
+    color: white;
+    position: absolute;
+    left: 25px;
+    margin-top: 80px;
+    color: rgb(113, 45, 45);
+    font-size: 20px;
+}
+
+
+.event3 {
+    border: 1px solid #000;
+    border-radius: 25px;
+    margin: 5px;
+    font-family: 'Cabin', sans-serif;
+    align-items: center;
+    height: 180px;
+    background-image: url(/img/minecraft_even1.jpg);
+    background-size: cover;
+    background-position: center;
+}
+
+.even3_h3 {
+    color: white;
+    font-size: 30px;
+    margin-left: 20px;
+}
+
+#event3_button {
+    margin-right: 20px;
+    font-size: 18px;
+    height: 40px;
+    margin-top: 10px;
+}
+
+
+
+.event3_p {
+    color: white;
+    position: absolute;
+    left: 25px;
+    margin-top: 80px;
+    font-size: 20px;
+}
+
+.cdk_warehouse {
+    border: 1px solid #000;
+    border-radius: 25px;
+    margin: 5px;
+    font-family: 'Cabin', sans-serif;
+    align-items: center;
+    height: 50px;
+    background-color: rgb(240, 245, 245);
+}
+
+.cdk_warehouse_h3 {
+    text-align: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.cdk_warehouse img {
+    width: 10%;
+    margin-left: 5px;
+}
+
+#cdk_warehouse_button {
+    margin-right: 5px;
+    border-radius: 25px;
+}
+
+
+
+

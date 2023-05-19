@@ -1,0 +1,9 @@
+/node_modules
+.env
+.DS_Store
+package-lock.json
+.git
+/public/datasets/bigfiles
+/public/datasets/csv_test.csv
+/public/datasets/steam_games_test.json
+/public/datasets/steam_games.csv

@@ -1,0 +1,22 @@
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+}
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 50px;
+}
+.content {
+    margin: 20px;
+    border-radius: 20px;
+}
+img {
+    width: 300px;
+    height: auto;
+}

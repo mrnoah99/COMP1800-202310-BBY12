@@ -1,0 +1,109 @@
+.warehouse_container {
+    font-family: 'Russo One', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 85vh;
+    border: 1px solid black;
+    grid-gap: 50px;
+    width: 100%;
+    background-color: #E5ECEC;
+}
+
+.key1 {
+    border: 1px solid black;
+    border-radius: 30px;
+    height: 150px;
+    width: 350px;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    position: relative; 
+    background-color: #FCFDFD;
+}
+
+.key1_name {
+    margin-bottom: 10px; 
+    font-size: 30px;
+}
+
+.key1_details {
+    margin-bottom: 10px; 
+    font-size: 18px;
+}
+
+.key2 {
+    border: 1px solid black;
+    border-radius: 30px;
+    height: 150px;
+    width: 350px;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    position: relative; 
+    background-color: #FCFDFD;
+}
+
+.key2_name {
+    margin-bottom: 10px; 
+    font-size: 30px;
+}
+
+.key2_details {
+    margin-bottom: 10px; 
+    font-size: 18px;
+}
+
+
+.key3 {
+    border: 1px solid black;
+    border-radius: 30px;
+    height: 150px;
+    width: 350px;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: center; 
+    align-items: center; 
+    position: relative; 
+    background-color: #FCFDFD;
+}
+
+.key3_name {
+    margin-bottom: 10px; 
+    font-size: 30px;
+}
+
+.key3_details {
+    margin-bottom: 10px; 
+    font-size: 18px;
+}
+
+.key1 img {
+    position: absolute; 
+    top: 50%; 
+    right: 10px; 
+    transform: translateY(-50%); 
+    width: 30px;
+}
+
+
+.key2 img {
+    position: absolute; 
+    top: 50%; 
+    right: 10px; 
+    transform: translateY(-50%); 
+    width: 30px;
+}
+
+
+.key3 img {
+    position: absolute; 
+    top: 50%; 
+    right: 10px; 
+    transform: translateY(-50%); 
+    width: 30px;
+}
+
