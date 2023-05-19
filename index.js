@@ -106,6 +106,10 @@ app.get('/nosql-injection', async (req, res) => {
 
 });
 
+const communityRouter = require('./routes/community');
+app.use('/community', communityRouter);
+
+
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
@@ -145,6 +149,7 @@ app.post("/signupSubmit", async (req, res) => {
   req.session.remainingQuantity = 10
   res.redirect("/index");
 });
+
 
 
 app.get("/redeem", (req, res) => {
@@ -194,7 +199,7 @@ app.get("/index", (req, res) => {
     return;
   }
 
-  res.render("index", { username: req.session.username });
+  res.render("index", { username: req.session.username, title:"Homepage" });
 });
 
 app.get("/event", (req, res) => {
@@ -256,3 +261,4 @@ app.post("/loginSubmit", async (req, res) => {
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 });
+
