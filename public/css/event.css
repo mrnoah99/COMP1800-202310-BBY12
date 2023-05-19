@@ -45,9 +45,9 @@ html {
 .event1_p {
     color: white;
     position: absolute;
-    top: 115px;
-    left: 30px;
+    left: 25px;
     font-size: 20px;
+    margin-top: 90px;
 }
 
 .event2 {
@@ -133,10 +133,11 @@ html {
 .cdk_warehouse_h3 {
     text-align: center;
     align-items: center;
+    margin-top: 10px;
 }
 
 .cdk_warehouse img {
-    width: 6%;
+    width: 10%;
     margin-left: 5px;
 }
 
