@@ -12,14 +12,14 @@ const path = require("path");
 const mime = require('mime');
 
 const upload = multer({ dest: 'public/uploads/' });
-
+const port = process.env.PORT || 2300;
 
 
 
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
-const fs = require('fs');
-const path = require('path');
+// const fs = require('fs');
+// const path = require('path');
 var gamesJSONData;
 
 
@@ -102,46 +102,51 @@ app.get("/login", (req, res) => {
   }
 });
 
-app.post("/loginSubmit", async (req, res) => {
+// app.post("/loginSubmit", async (req, res) => {
 
-  var email = req.body.email;
-  var password = req.body.password;
+//   var email = req.body.email;
+//   var password = req.body.password;
 
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().max(20).required(),
-  });
+//   const schema = Joi.object({
+//     email: Joi.string().email().required(),
+//     password: Joi.string().max(20).required(),
+//   });
 
-  const validationResult = schema.validate({ email, password });
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
-    res.redirect("/login");
-    return;
-  }
+//   const validationResult = schema.validate({ email, password });
+//   if (validationResult.error != null) {
+//     console.log(validationResult.error);
+//     res.redirect("/login");
+//     return;
+//   }
 
-  const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
+//   const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
 
-  console.log(result);
-  if (result.length != 1) {
-    console.log("User is not found...");
-    res.redirect("/login");
-    return;
-  }
-  if (await bcrypt.compare(password, result[0].password)) {
-    console.log("right password");
+//   console.log(result);
+//   if (result.length != 1) {
+//     console.log("User is not found...");
+//     res.redirect("/login");
+//     return;
+//   }
+//   if (await bcrypt.compare(password, result[0].password)) {
+//     console.log("right password");
 
-    req.session.authenticated = true;
-    req.session.username = result[0].username;
-    req.session.cookie.maxAge = expireTime;
+//     req.session.authenticated = true;
+//     req.session.username = result[0].username;
+//     req.session.cookie.maxAge = expireTime;
 
-    res.redirect("/");
-    return;
-  } else {
-    console.log("wrong password");
-    res.redirect("/login?errorMsg=Invalid email/password combination.");
-    return;
-  }
-});
+//     const expireTime = 3600000; // 1시간 (밀리초)
+
+
+//     res.redirect("/");
+//     return;
+//   } else {
+//     console.log("wrong password");
+//     res.redirect("/login?errorMsg=Invalid email/password combination.");
+//     return;
+//   }
+// });
+
+
 
 app.get('/nosql-injection', async (req,res) => {
   var name = req.query.user;
@@ -399,16 +404,51 @@ app.get("/event", (req, res) => {
   res.render("event", {title: "Event"});
 });
 
-app.get("/profile", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("profile", {nickname: "test", email: "test@email.ca"});
-});
+
+
+// app.post("/loginSubmit", async (req, res) => {
+
+//   var email = req.body.email;
+//   var password = req.body.password;
+
+//   const schema = Joi.object({
+//     email: Joi.string().email().required(),
+//     password: Joi.string().max(20).required(),
+//   });
+
+//   const validationResult = schema.validate({ email, password });
+//   if (validationResult.error != null) {
+//     console.log(validationResult.error);
+//     res.redirect("/login");
+//     return;
+//   }
+
+//   const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
+
+//   console.log(result);
+//   if (result.length != 1) {
+//     console.log("User is not found...");
+//     res.redirect("/login");
+//     return;
+//   }
+//   if (await bcrypt.compare(password, result[0].password)) {
+//     console.log("right password");
+
+//     req.session.authenticated = true;
+//     req.session.username = result[0].username;
+//     req.session.cookie.maxAge = expireTime;
+
+//     res.redirect("/event");
+//     return;
+//   } else {
+//     console.log("wrong password");
+//     res.redirect("/login?errorMsg=Invalid email/password combination.");
+//     return;
+//   }
+//   res.render("pricecompare");
+// });
 
 app.post("/loginSubmit", async (req, res) => {
-
   var email = req.body.email;
   var password = req.body.password;
 
@@ -424,7 +464,10 @@ app.post("/loginSubmit", async (req, res) => {
     return;
   }
 
-  const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
+  const result = await userCollection
+    .find({ email: email })
+    .project({ email: 1, password: 1, _id: 1, username: 1 })
+    .toArray();
 
   console.log(result);
   if (result.length != 1) {
@@ -432,22 +475,25 @@ app.post("/loginSubmit", async (req, res) => {
     res.redirect("/login");
     return;
   }
+
   if (await bcrypt.compare(password, result[0].password)) {
-    console.log("right password");
+    console.log("Right password");
 
     req.session.authenticated = true;
     req.session.username = result[0].username;
+    
+    const expireTime = 1000 * 60 * 60 * 24; // 24시간 (예시로 1일로 설정)
     req.session.cookie.maxAge = expireTime;
 
-    res.redirect("/event");
+    res.redirect("/index");
     return;
   } else {
-    console.log("wrong password");
+    console.log("Wrong password");
     res.redirect("/login?errorMsg=Invalid email/password combination.");
     return;
   }
-  res.render("pricecompare");
 });
+
 //sohee parts
 
 // app.get('/games/:gameTemplate', (req, res) => {
@@ -513,6 +559,44 @@ app.get('/gamedetail', (req, res) => {
 
 
 });
+//여기부터 오늘 넣음
+// const cloudinary = require('cloudinary').v2;
+
+// // Configuration
+// cloudinary.config({
+//   cloud_name: "BBY-12",
+//   api_key: "393755476357252",
+//   api_secret: "iGw5i_suKKl-3KXMI6jcx3o6nb0"
+// });
+
+// // Upload
+// const imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg';
+// const uploadOptions = {
+//   public_id: "olympic_flag"
+// };
+
+// cloudinary.uploader.upload(imageUrl, uploadOptions)
+//   .then((result) => {
+//     console.log(result);
+//     console.log(result.secure_url);
+//   })
+//   .catch((error) => {
+//     console.error(error);
+//   });
+
+// // Generate
+// const imageUrlOptions = {
+//   public_id: "olympic_flag",
+//   width: 100,
+//   height: 150,
+//   crop: 'fill'
+// };
+
+// const generatedImageUrl = cloudinary.url(imageUrlOptions);
+
+// // The output URL
+// console.log(generatedImageUrl);
+// // Output: https://res.cloudinary.com/BBY-12/image/upload/h_150,w_100,c_fill/olympic_flag
 
 app.get('/profile', async (req, res) => {
   try {
@@ -531,6 +615,81 @@ app.get('/profile', async (req, res) => {
     res.status(500).json({ error: '사용자 조회에 실패했습니다' });
   }
 });
+const cloudinary = require('cloudinary').v2;
+
+// Configuration
+cloudinary.config({
+  cloud_name: "BBY-12",
+  api_key: "393755476357252",
+  api_secret: "iGw5i_suKKl-3KXMI6jcx3o6nb0"
+});
+
+// Upload Profile Image
+function uploadProfileImage(file) {
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      file.path, // 업로드할 파일의 경로
+      { folder: 'profile-images' }, // Cloudinary 내에서 이미지를 저장할 폴더
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result.secure_url); // 업로드된 이미지의 URL 반환
+        }
+      }
+    );
+  });
+}
+
+app.post('/upload', upload.single('file'), async (req, res) => {
+  try {
+    if (req.file) {
+      // Handle the uploaded image file
+      console.log('Profile image uploaded:', req.file.filename);
+
+      // Upload the image to Cloudinary
+      const imageUrl = await uploadProfileImage(req.file);
+
+      // Update the user's profile image path in the database
+      const username = req.session.username; // Replace with your own user identifier
+
+      await database.db('COMP2800-BBY-12').collection('users').updateOne(
+        { username: username },
+        { $set: { image: imageUrl } }
+      );
+
+      console.log('Profile image path updated in the database');
+
+      // Send a response indicating success and the updated image path
+      res.send(imageUrl);
+    } else {
+      res.status(400).send('No file uploaded');
+    }
+  } catch (error) {
+    console.error('Error handling profile image upload:', error);
+    res.status(500).send('Error handling profile image upload');
+  }
+});
+
+app.get('/profile', async (req, res) => {
+  const username = req.session.username;
+
+  try {
+    const user = await database.db('COMP2800-BBY-12').collection('users').findOne({ username: username });
+    if (!user) {
+      res.status(404).send('User not found');
+      return;
+    }
+
+    // Render the profile page with the full user object
+    res.render('profile', { username: user.username, email: user.email, phone: user.phone, image: user.image, title: 'Profile' })
+
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).send("Error fetching user profile");
+  }
+});
+
 
 const dbName = 'COMP2800-BBY-12';
 
@@ -633,25 +792,6 @@ app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
   }
 });
 
-app.get('/profile', async (req, res) => {
-  const username = req.session.username;
-
-  try {
-    // Find the user in the database
-    const user = await userCollection.findOne({ username: username });
-    if (!user) {
-      res.status(404).send('User not found');
-      return;
-    }
-
-    // Render the profile page with the current profile image
-    res.render('profile', { image: user.image, title: 'Profile' })
-
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    res.status(500).send("Error fetching user profile");
-  }
-});
 app.get('/recommend', (req, res) => {
   try {
     // 게임 추천에 필요한 데이터를 가져오는 로직
@@ -721,14 +861,24 @@ app.get("/searchresults", (req, res) => {
   image: gamesJSONData[0].header_image});
 });
 
-// Will need to be connected to actual log out functions.
-app.get("/logout", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("logout");
+// 로그아웃 핸들러
+app.get('/logout', (req, res) => {
+  // 로그아웃 로직 구현
+  req.session.destroy(); // 세션을 파괴하는 코드. 사용하는 세션 라이브러리에 따라 다를 수 있습니다.
+
+  // 로그인 페이지로 리디렉션
+  res.redirect('/login');
 });
+
+
+// // Will need to be connected to actual log out functions.
+// app.get("/logout", (req, res) => {
+//   if (!req.session.authenticated) {
+//     res.redirect("/");
+//     return;
+//   }
+//   res.render("logout");
+// });
 
 app.get("/csvexample", (req, res) => {
   let input = "Test";

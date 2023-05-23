@@ -1,0 +1,68 @@
+.member {
+    text-align: center;
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+}
+
+.member a {
+    text-decoration: none;
+    color: #FFFFFF;
+
+}
+
+.agreement_line {
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+}
+
+.agreement_line a {
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#login-button {
+    font-family: 'Press Start 2P', cursive;
+}
+
+#gotosignup-button {
+    font-family: 'Press Start 2P', cursive;
+}
+
+.signup_img {
+    display:flex;
+    justify-content: center;
+    align-items:center;
+}
+
+#logo_signup {
+    width: 80%;
+    height: auto;
+    max-width: 100%;
+    display: block;
+}
+
+#card {
+    background-color: #0572FC;
+}
+
+#signin_title {
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.form-label {
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+}
+
+hr {
+    color: whitesmoke;
+}
