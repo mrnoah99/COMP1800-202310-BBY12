@@ -565,118 +565,6 @@ app.get('/gamedetail', (req, res) => {
 
 
 });
-//여기부터 오늘 넣음
-// const cloudinary = require('cloudinary').v2;
-
-// // Configuration
-// cloudinary.config({
-//   cloud_name: "BBY-12",
-//   api_key: "393755476357252",
-//   api_secret: "iGw5i_suKKl-3KXMI6jcx3o6nb0"
-// });
-
-// // Upload
-// const imageUrl = 'https://upload.wikimedia.org/wikipedia/commons/a/ae/Olympic_flag.jpg';
-// const uploadOptions = {
-//   public_id: "olympic_flag"
-// };
-
-// cloudinary.uploader.upload(imageUrl, uploadOptions)
-//   .then((result) => {
-//     console.log(result);
-//     console.log(result.secure_url);
-//   })
-//   .catch((error) => {
-//     console.error(error);
-//   });
-
-// // Generate
-// const imageUrlOptions = {
-//   public_id: "olympic_flag",
-//   width: 100,
-//   height: 150,
-//   crop: 'fill'
-// };
-
-// const generatedImageUrl = cloudinary.url(imageUrlOptions);
-
-// // The output URL
-// console.log(generatedImageUrl);
-// // Output: https://res.cloudinary.com/BBY-12/image/upload/h_150,w_100,c_fill/olympic_flag
-
-app.get('/profile', async (req, res) => {
-  try {
-    const user = await database.db('COMP2800-BBY-12').collection('users').findOne({ username: req.session.username });
-
-    if (!user) {
-      return res.status(404).json({ error: '사용자를 찾을 수 없습니다' });
-    }
-
-    const { username, email, phone, image } = user; // 필요한 사용자 정보 추출
-
-    res.render('profile', { username, email, phone, image, title: 'Profile' });
-
-  } catch (error) {
-    console.error('사용자 조회 오류:', error);
-    res.status(500).json({ error: '사용자 조회에 실패했습니다' });
-  }
-});
-const cloudinary = require('cloudinary').v2;
-
-// Configuration
-cloudinary.config({
-  cloud_name: "BBY-12",
-  api_key: "393755476357252",
-  api_secret: "iGw5i_suKKl-3KXMI6jcx3o6nb0"
-});
-
-// Upload Profile Image
-function uploadProfileImage(file) {
-  return new Promise((resolve, reject) => {
-    cloudinary.uploader.upload(
-      file.path, // 업로드할 파일의 경로
-      { folder: 'profile-images' }, // Cloudinary 내에서 이미지를 저장할 폴더
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result.secure_url); // 업로드된 이미지의 URL 반환
-        }
-      }
-    );
-  });
-}
-
-app.post('/upload', upload.single('file'), async (req, res) => {
-  try {
-    if (req.file) {
-      // Handle the uploaded image file
-      console.log('Profile image uploaded:', req.file.filename);
-
-      // Upload the image to Cloudinary
-      const imageUrl = await uploadProfileImage(req.file);
-
-      // Update the user's profile image path in the database
-      const username = req.session.username; // Replace with your own user identifier
-
-      await database.db('COMP2800-BBY-12').collection('users').updateOne(
-        { username: username },
-        { $set: { image: imageUrl } }
-      );
-
-      console.log('Profile image path updated in the database');
-
-      // Send a response indicating success and the updated image path
-      res.send(imageUrl);
-    } else {
-      res.status(400).send('No file uploaded');
-    }
-  } catch (error) {
-    console.error('Error handling profile image upload:', error);
-    res.status(500).send('Error handling profile image upload');
-  }
-});
-
 app.get('/profile', async (req, res) => {
   const username = req.session.username;
 
@@ -797,7 +685,6 @@ app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
     res.status(500).send('Error handling profile image upload');
   }
 });
-
 app.get('/recommend', (req, res) => {
   try {
     // 게임 추천에 필요한 데이터를 가져오는 로직
