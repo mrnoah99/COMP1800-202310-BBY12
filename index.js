@@ -7,11 +7,14 @@ const MongoStore = require("connect-mongo");
 const MongoClient = require('mongodb').MongoClient;
 const formidable = require('formidable');
 const multer = require('multer');
-const ObjectId = require('mongodb').ObjectId;
 const path = require("path");
 const mime = require('mime');
+var { database } = require("./databaseConnection");
+const mongoose = require("mongoose");
+const ObjectID = mongoose.Types.ObjectId;
 
 const upload = multer({ dest: 'public/uploads/' });
+
 const port = process.env.PORT || 2300;
 
 
@@ -23,16 +26,21 @@ const saltRounds = 12;
 var gamesJSONData;
 
 
+var { database } = require("./databaseConnection");
+const mongoose = require("mongoose");
+const ObjectID = mongoose.Types.ObjectId;
+
+var gamesJSONData;
+
 const app = express();
 
 const Joi = require("joi");
 const { TextEncoder } = require("util");
+const expireTime = 24 * 60 * 60 * 1000;
 
 // Configuring the view engine for an Express.js application to be EJS
 app.set('view engine', 'ejs');
 app.use(express.static("public"));
-
-
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -47,6 +55,11 @@ const node_session_secret = process.env.NODE_SESSION_SECRET;
 var { database } = include("databaseConnection");
 
 const userCollection = database.db(mongodb_database).collection("users");
+const postCollection = database.db(mongodb_database).collection("posts");
+
+
+const port = process.env.PORT || 3200;
+
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -68,28 +81,240 @@ app.use(session({
 
 // Gets the 55,000 games dataset loaded into a variable accessible by the rest of index.js
 const fs = require("fs");
-    fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
-        if (err) {
-            console.error("Error reading file: ", err);
-            return;
-        }
+fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
+  if (err) {
+    console.error("Error reading file: ", err);
+    return;
+  }
 
-        try {
-            gamesJSONData = JSON.parse(data);
-            console.log("All games:\n" + gamesJSONData);
-            console.log("\nFirst game:\n" + gamesJSONData[0]);
-            console.log("Game title: " + gamesJSONData[0].name);
-        } catch (error) {
-            console.error("Error parsing JSON: ", error);
-        }
-    });
+  try {
+    gamesJSONData = JSON.parse(data);
+    console.log("All games:\n" + gamesJSONData);
+  } catch (error) {
+    console.error("Error parsing JSON: ", error);
+  }
+});
+
+  const schema = Joi.string().max(100).required();
+  const validationResult = schema.validate(name);
+
+  var invalid = false;
+  //If we didn't use Joi to validate and check for a valid URL parameter below
+  // we could run our userCollection.find and it would be possible to attack.
+  // A URL parameter of user[$ne]=name would get executed as a MongoDB command
+  // and may result in revealing information about all users or a successful
+  // login without knowing the correct password.
+  if (validationResult.error != null) {
+    invalid = true;
+    console.log(validationResult.error);
+    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    //    return;
+  }
+  var numRows = -1;
+  //var numRows2 = -1;
+  try {
+    const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
+    //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
+    //console.log(result);
+    numRows = result.length;
+    //numRows2 = result2.length;
+  }
+  catch (err) {
+    console.log(err);
+    res.send(`<h1>Error querying db</h1>`);
+    return;
+  }
+
+  console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
+
+  // var query = {
+  //     $where: "this.name === '" + req.body.username + "'"
+  // }
+
+  // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
+
+  // console.log(result2);
+
+  res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
+  //res.send(`<h1>Hello</h1>`);
+
+
+
+
+// const communityRouter = require('./routes/community');
+// app.use('/community', communityRouter);
+
+
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
+
+app.post("/signupSubmit", async (req, res) => {
+  var username = req.body.username;
+  var password = req.body.password;
+  var email = req.body.email;
+  var phone = req.body.phone;
+
+  const schema = Joi.object({
+    username: Joi.string().alphanum().max(20).required(),
+    password: Joi.string().max(20).required(),
+    email: Joi.string().email().required(),
+    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
+  });
+
+  const validationResult = schema.validate({ username, email, password, phone });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/signup");
+    return;
+  }
+
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  await userCollection.insertOne({
+    username: username,
+    password: hashedPassword,
+    email: email,
+    phone: phone,
+  });
+  console.log("User has been inserted");
+
+  req.session.authenticated = true;
+  req.session.username = username;
+  req.session.remainingQuantity = 10
+  res.redirect("/index");
+});
+
+function requireLogin(req, res, next) {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  } else {
+    next();
+  }
+}
+
+app.get("/community", requireLogin, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = 5;
+  const skip = (page - 1) * pageSize;
+
+  try {
+    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
+    const totalPosts = await postCollection.countDocuments();
+    const totalPages = Math.ceil(totalPosts / pageSize);
+
+    res.render("community", { posts: posts, totalPages: totalPages, currentPage: page, title: "Community" });
+  } catch (err) {
+    console.log(err);
+    console.error(err);
+    res.send("Error while fetching posts");
+  }
+});
+
+app.get("/community/:postId/details", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+    res.render("post", { post: post, title: "Community" });
+  } catch (err) {
+    console.error(err);
+    res.send("Error while fetching post details");
+  }
+});
+
+
+app.post("/community", async (req, res) => {
+  const newPost = {
+    author: req.body.author,
+    title: req.body.title,
+    content: req.body.content,
+    date: new Date(),
+    preview: req.body.content.split('\n').slice(0, 4).join('\n') + '...',
+    likes: [] // Make sure this line is there
+  };
+
+  try {
+    await postCollection.insertOne(newPost);
+    res.redirect("/community");
+  } catch (err) {
+    console.log(err);
+    res.send("Error while inserting post");
+  }
+});
+
+app.post("/community/write", function (req, res) {
+  const { title, author, content } = req.body;
+
+  const newPost = {
+    title: title,
+    author: author,
+    content: content,
+    date: new Date(),
+    preview: content.split('\n').slice(0, 4).join('\n') + '...'
+  };
+
+  postCollection.insertOne(newPost)
+    .then(result => {
+      console.log('Post added successfully');
+      res.redirect('/community');
+    })
+    .catch(error => console.error(error));
+});
+
+app.get("/community/write", requireLogin, (req, res) => {
+  res.render("communitywrite",{title: "Community"});
+});
+
+app.post("/community/like/:id", async (req, res) => {
+  try {
+    const username = req.session.username;
+    if (!username) {
+      return res.json({ success: false, message: "Please log in." });
+    }
+    const post = await Post.findOne({ _id: req.params.id });
+    if (!post) {
+      return res.json({ success: false, message: "Post not found." });
+    }
+
+    post.likers = post.likers || [];
+
+    const alreadyLiked = post.likers.includes(username);
+
+
+    if (alreadyLiked) {
+
+      post.likers = post.likers.filter((liker) => liker !== username);
+    } else {
+
+      post.likers.push(username);
+    }
+
+    await post.save();
+    return res.json({ success: true, liked: !alreadyLiked });
+  } catch (error) {
+    console.error(error);
+    return res.json({ success: false, message: "An error occurred." });
+  }
+});
+
+
+app.get("/redeem", (req, res) => {
+  // if (!req.session.authenticated) {
+  //   res.redirect("/");
+  //   return;
+  // }
+  res.render("redeem");
+});
+
 
 app.get("/", (req, res) => {
   if (!req.session.authenticated) {
     const errorMsg = req.query.errorMsg;
-    res.render("login", { errorMsg });
+    console.log(errorMsg)
+    res.redirect("/login");
   } else {
-    res.render("index", {title: "Home Page"});
+    res.render("index", { title: "Home Page" });
   }
 });
 
@@ -148,7 +373,7 @@ app.get("/login", (req, res) => {
 
 
 
-app.get('/nosql-injection', async (req,res) => {
+app.get('/nosql-injection', async (req, res) => {
   var name = req.query.user;
 
   if (!name) {
@@ -160,50 +385,50 @@ app.get('/nosql-injection', async (req,res) => {
   const schema = Joi.string().max(100).required();
   const validationResult = schema.validate(name);
 
-    var invalid = false;
+  var invalid = false;
   //If we didn't use Joi to validate and check for a valid URL parameter below
   // we could run our userCollection.find and it would be possible to attack.
   // A URL parameter of user[$ne]=name would get executed as a MongoDB command
   // and may result in revealing information about all users or a successful
   // login without knowing the correct password.
-  if (validationResult.error != null) { 
-        invalid = true;
-      console.log(validationResult.error);
-  //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-  //    return;
-  }	
-    var numRows = -1;
-    //var numRows2 = -1;
-    try {
-      const result = await userCollection.find({name: name}).project({username: 1, password: 1, _id: 1}).toArray();
-      //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
-        //console.log(result);
-        numRows = result.length;
-        //numRows2 = result2.length;
-    }
-    catch (err) {
-        console.log(err);
-        res.send(`<h1>Error querying db</h1>`);
-        return;
-    }
+  if (validationResult.error != null) {
+    invalid = true;
+    console.log(validationResult.error);
+    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    //    return;
+  }
+  var numRows = -1;
+  //var numRows2 = -1;
+  try {
+    const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
+    //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
+    //console.log(result);
+    numRows = result.length;
+    //numRows2 = result2.length;
+  }
+  catch (err) {
+    console.log(err);
+    res.send(`<h1>Error querying db</h1>`);
+    return;
+  }
 
-    console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `,name);
+  console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
 
-    // var query = {
-    //     $where: "this.name === '" + req.body.username + "'"
-    // }
+  // var query = {
+  //     $where: "this.name === '" + req.body.username + "'"
+  // }
 
-    // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
-    
-    // console.log(result2);
+  // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
 
-    res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`); 
-    //res.send(`<h1>Hello</h1>`);
+  // console.log(result2);
+
+  res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
+  //res.send(`<h1>Hello</h1>`);
+
+
+
 
 });
-
-const communityRouter = require('./routes/community');
-app.use('/community', communityRouter);
 
 
 app.get("/signup", (req, res) => {
@@ -211,7 +436,6 @@ app.get("/signup", (req, res) => {
 });
 
 let remainingQuantity = 10;
-
 
 app.post("/signupSubmit", async (req, res) => {
   var username = req.body.username;
@@ -256,6 +480,7 @@ app.post("/getCDKey", async (req, res) => {
     res.status(401).send("Unauthorized");
     return;
   }
+
   // 코드 내용...
 });
 
@@ -263,6 +488,142 @@ app.get("/redeem", async (req, res) => { // async 키워드 추가
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
+});
+
+function requireLogin(req, res, next) {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  } else {
+    next();
+  }
+}
+
+app.get("/community", requireLogin, async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = 5;
+  const skip = (page - 1) * pageSize;
+
+  try {
+    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
+    const totalPosts = await postCollection.countDocuments();
+    const totalPages = Math.ceil(totalPosts / pageSize);
+
+    res.render("community", { posts: posts, totalPages: totalPages, currentPage: page, title: "Community" });
+  } catch (err) {
+    console.log(err);
+    console.error(err);
+    res.send("Error while fetching posts");
+  }
+});
+
+app.get("/community/:postId/details", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+    res.render("post", { post: post, title: "Community" });
+  } catch (err) {
+    console.error(err);
+    res.send("Error while fetching post details");
+  }
+});
+
+
+app.post("/community", async (req, res) => {
+  const newPost = {
+    author: req.body.author,
+    title: req.body.title,
+    content: req.body.content,
+    date: new Date(),
+    preview: req.body.content.split('\n').slice(0, 4).join('\n') + '...',
+    likes: [] // Make sure this line is there
+  };
+
+  try {
+    await postCollection.insertOne(newPost);
+    res.redirect("/community");
+  } catch (err) {
+    console.log(err);
+    res.send("Error while inserting post");
+  }
+});
+
+app.post("/community/write", function (req, res) {
+  const { title, author, content } = req.body;
+
+  const newPost = {
+    title: title,
+    author: author,
+    content: content,
+    date: new Date(),
+    preview: content.split('\n').slice(0, 4).join('\n') + '...'
+  };
+
+  postCollection.insertOne(newPost)
+    .then(result => {
+      console.log('Post added successfully');
+      res.redirect('/community');
+    })
+    .catch(error => console.error(error));
+});
+
+app.get("/community/write", requireLogin, (req, res) => {
+  res.render("communitywrite",{title: "Community"});
+});
+
+app.post("/community/like/:id", async (req, res) => {
+  try {
+    const username = req.session.username;
+    if (!username) {
+      return res.json({ success: false, message: "Please log in." });
+    }
+    const post = await Post.findOne({ _id: req.params.id });
+    if (!post) {
+      return res.json({ success: false, message: "Post not found." });
+    }
+
+    post.likers = post.likers || [];
+
+    const alreadyLiked = post.likers.includes(username);
+
+
+    if (alreadyLiked) {
+
+      post.likers = post.likers.filter((liker) => liker !== username);
+    } else {
+
+      post.likers.push(username);
+    }
+
+    await post.save();
+    return res.json({ success: true, liked: !alreadyLiked });
+  } catch (error) {
+    console.error(error);
+    return res.json({ success: false, message: "An error occurred." });
+  }
+});
+
+app.get("/redeem", async (req, res) => {
+   if (!req.session.authenticated) {
+     res.redirect("/");
+     return;
+  }
+  res.render("redeem");
+  const user = await userCollection.findOne({ username: req.session.username });
+  if (!user || user.cdKeys.length === 0) {
+    res.status(400).send("No CD keys left");
+    return;
+  }
+  const cdKey = user.cdKeys.pop();
+  await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
+  res.json({ cdKey });
+});
+
+
+app.get("/redeem", async (req, res) => {
+   if (!req.session.authenticated) {
+     res.redirect("/");
+     return;
   }
   res.render("redeem");
   const user = await userCollection.findOne({ username: req.session.username });
@@ -292,9 +653,8 @@ app.get("/warehouse", async (req, res) => {
     return;
   }
   const user = await userCollection.findOne({ username: req.session.username });
-  res.render("warehouse" ,{ title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
+  res.render("warehouse", { title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
 });
-
 
 //Redeem Page and Functionality
 app.get("/redeem", (req, res) => {
@@ -330,7 +690,6 @@ app.post("/updateRemainingQuantity", (req, res) => {
 //   remainingQuantity = 10;
 //   res.json({ remainingQuantity: remainingQuantity });
 // });
-
 
 // Read and parse cdk.txt
 let cdkKeys = fs.readFileSync(path.join(__dirname, 'cdk.txt'), 'utf8').split('\n').filter(key => key);
@@ -373,7 +732,6 @@ app.get("/redeemKey", async (req, res) => {
   res.json({ cdKey: redeemedKey, remainingQuantity: remainingQuantity });
 });
 
-
 //Event Page
 app.get("/event", (req, res) => {
   if (!req.session.authenticated) {
@@ -382,7 +740,6 @@ app.get("/event", (req, res) => {
   }
   res.render("event", {title: "Event"})
 });
-
 
 //Setting Page
 app.get("/setting", (req, res) => {
@@ -395,10 +752,10 @@ app.get("/setting", (req, res) => {
 
 app.get("/index", (req, res) => {
   if (!req.session.authenticated) {
-    res.redirect("/");
+    res.redirect("/login");
     return;
   }
-  
+
   res.render("index", { username: req.session.username, title: "Home Page" });
 });
 
@@ -407,7 +764,7 @@ app.get("/event", (req, res) => {
     res.redirect("/");
     return;
   }
-  res.render("event", {title: "Event"});
+  res.render("event", { title: "Event" });
 });
 
 
@@ -506,7 +863,6 @@ app.post("/loginSubmit", async (req, res) => {
 //   // req.params.gameTemplate을 사용해서 게임 데이터를 로드하고 렌더링
 // });
 
-
 app.get('/popular', (req, res) => {
   // popular.html 파일을 렌더링할 때 필요한 데이터
   const games = [
@@ -551,7 +907,6 @@ app.get('/popular', (req, res) => {
   res.render('popular', { games, title: 'Popular Games' });
 
 });
-
 
 app.get('/gamedetail', (req, res) => {
   const gameName = 'Game Name'; // 실제 게임 이름으로 대체해야 합니다.
@@ -699,13 +1054,12 @@ app.get('/recommend', (req, res) => {
   }
 });
 
-
 app.get("/recommended", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
   }
-  res.render("recommend", {imageUrl1: "/img/steam_logo.png", imageUrl2: "/img/search.png"});
+  res.render("recommend", {imageUrl1: "/img/steam_logo.png", imageUrl2: "/img/search_icon.png", title: "Recommended Games"});
 });
 
 app.get("/settings", (req, res) => {
@@ -713,7 +1067,7 @@ app.get("/settings", (req, res) => {
     res.redirect("/");
     return;
   }
-  res.render("settings");
+  res.render("settings", { title: settings });
 });
 
 app.get("/notif-settings", (req, res) => {
@@ -732,26 +1086,82 @@ app.get("/sec-settings", (req, res) => {
   res.render("sec-settings");
 });
 
+app.get('/gamedetails', (req, res) => {
+  let gameID = req.query.game_ID; // SteamID for the game, allows for the code here to get all of the other details for the game.
+  let resultIndex = 0;
+  if (!req.query.game_ID) {
+    gameID = 0;
+  }
+  for (let i = 0; i < gamesJSONData.length; i++) {
+    if (gamesJSONData[i].appid == gameID) {
+      resultIndex = i;
+    }
+  }
+  let game = gamesJSONData[resultIndex];
+  let exampleID = 1;
+  if (resultIndex == 1) {
+    exampleID = 3;
+  }
+  let gameName = game.name; // 실제 게임 이름으로 대체해야 합니다.
+  let gameRating = Math.round((game.positive / (game.positive + game.negative)) * 10000) / 100; // 실제 게임 평점으로 대체해야 합니다.
+  let gameDescription = game.short_description; // 실제 게임 설명으로 대체해야 합니다.
+  let gameImage = game.header_image; // 실제 게임 이미지 경로로 대체해야 합니다.
+  let appid = gamesJSONData[exampleID].appid;
+  let similarGames = `<a href='/gamedetails?game_ID=${appid}'><img id='${appid}' class='moregame' onmouseleave='closeHoverMenu(${appid})' onmouseenter='openHoverMenu(${appid})' src='${gamesJSONData[exampleID].header_image}'></a>`; // 실제 유사한 게임 목록으로 대체해야 합니다.
+
+  res.render('gamedetail', {
+    gameName: gameName, gameRating: gameRating, gameDescription: gameDescription,
+    gameImage: gameImage, similarGames: similarGames, title: `${gameName} Details`,
+    truncatedDesc: `${gamesJSONData[exampleID].short_description.substring(0, 200)}...`,
+    moreGameName: `${gamesJSONData[exampleID].name}`
+  });
+
+
+});
+
 app.get("/searchresults", (req, res) => {
   let search = req.query.search;
-  let capitalised = search.substring(0, 1).toUpperCase + search.substring(1, search.length);
-  let allcaps = search.toUpperCase;
+  let capitalised = search.substring(0, 1).toUpperCase() + search.substring(1, search.length);
+  let allcaps = search.toUpperCase();
   let result = -1;
+  let searchResult = "";
+  if ("Counter-Strike".includes("Counter")) {
+    console.log("Counter will return the game Counter Strike.");
+  } else {
+    console.log("Counter will not return the game Counter Strike");
+  }
+  if (search.length == 1) {
+    capitalised = search.toUpperCase();
+  }
   for (i = 0; i < gamesJSONData.length; i++) {
     if (gamesJSONData[i].name.includes(search) || gamesJSONData[i].name.includes(capitalised) || gamesJSONData[i].name.includes(allcaps)) {
       result = i;
+      let storeLink = gamesJSONData[result].name.replace(" ", "_");
+      let total = gamesJSONData[result].positive + gamesJSONData[result].negative;
+      console.log(`localhost:3200/gamedetails?game_name=${gamesJSONData[result].name}&ratings=${(gamesJSONData[result].positive / total) * 100}&imageurl=${gamesJSONData[result].header_image}&desc='${gamesJSONData[result].short_description.replace("'", "%27")}'`);
+      searchResult += `
+      <div class='card'>
+        <p class='game-title'>${gamesJSONData[result].name}</p>
+        <img class='game-img' src=${gamesJSONData[result].header_image}>
+        <span class='desc'>${gamesJSONData[result].short_description}</span>
+        <p class='overall-rating'>${Math.round(((gamesJSONData[result].positive / total) * 100) * 100) / 100}% Positive Reviews</p>
+        <div class='links'>
+          <a href='https://store.steampowered.com/app/${gamesJSONData[result].appid}/${storeLink}' target=_blank>Store Page</a>
+          <br>
+          <a class='btn btn-primary detail-button' href='/gamedetails?game_ID=${gamesJSONData[result].appid}'>More Details</a>
+        </div>
+      </div>
+      `;
     }
   }
   if (result <= -1) {
     result = 0;
   }
-  console.log("Result: " + gamesJSONData[result].name);
   if (!req.session.authenticated) {
     res.redirect("login");
     return;
   }
-  res.render("searchresults", {title: "Search Results", search_query: search, data: gamesJSONData[0].name, 
-  image: gamesJSONData[0].header_image});
+  res.render("searchresults", { title: "Search Results", search_query: search, search_results: searchResult });
 });
 
 // 로그아웃 핸들러
@@ -776,7 +1186,7 @@ app.get('/logout', (req, res) => {
 app.get("/csvexample", (req, res) => {
   let input = "Test";
   let result = input;
-  res.render("csvexample", {search_query: result, title: "Test"});
+  res.render("csvexample", { search_query: result, title: "Test" });
 });
 
 app.get('/free', (req, res) => {
@@ -852,6 +1262,7 @@ app.get('/games/sss', (req, res) => {
 
   res.render('sss', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/reddead', (req, res) => {
   const gameName = 'Red Dead Redemption II';
   const gameRating = '85% of users like this video game';
@@ -874,6 +1285,7 @@ app.get('/games/reddead', (req, res) => {
 
   res.render('reddead', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/gta', (req, res) => {
   const gameName = 'Grand Theft Auto V';
   const gameRating = '97% of users like this video game';
@@ -896,6 +1308,7 @@ app.get('/games/gta', (req, res) => {
 
   res.render('gta', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/callof', (req, res) => {
   const gameName = 'Call of Duty Warzone';
   const gameRating = '79% of users like this video game';
@@ -918,6 +1331,7 @@ app.get('/games/callof', (req, res) => {
 
   res.render('callof', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/apex', (req, res) => {
   const gameName = 'Apex Legends';
   const gameRating = '88% of users like this video game';
@@ -940,6 +1354,7 @@ app.get('/games/apex', (req, res) => {
 
   res.render('apex', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/fortnite', (req, res) => {
   const gameName = 'Fortnite';
   const gameRating = '85% of users like this video game';
@@ -986,8 +1401,6 @@ app.get('/games/amongus', (req, res) => {
   res.render('amongus', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
 
-
-
 app.get('/games/gensin', (req, res) => {
   const gameName = 'Genshin Impact';
   const gameRating = '85% of users like this video game';
@@ -1033,6 +1446,7 @@ app.get('/games/warframe', (req, res) => {
 
   res.render('warframe', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/lol', (req, res) => {
   const gameName = 'League of Legends';
   const gameRating = '76% of users like this video game';
@@ -1055,6 +1469,7 @@ app.get('/games/lol', (req, res) => {
 
   res.render('lol', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
 app.get('/games/minecraft', (req, res) => {
   const gameName = 'Minecraft';
   const gameRating = '93% of users like this video game';
@@ -1081,4 +1496,3 @@ app.get('/games/minecraft', (req, res) => {
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 });
-

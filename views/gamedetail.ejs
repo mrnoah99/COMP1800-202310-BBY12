@@ -1,29 +1,21 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Game Detail Page</title>
-  <link rel="stylesheet" type="text/css" href="/css/gamedetail.css">
-</head>
-
-<body>
-  <%- include("templates/header") %>
-  <!-- whatever you need to link -->
-  <%- include("templates/navbar") %>
+<%- include("templates/header") %>
+<link rel="stylesheet" type="text/css" href="/css/gamedetail.css">
+<%- include("templates/navbar") %>
   <div class="container">
-    <h3 id="gameName"><%= gameName %></h3>
-    <p id="gameRating"><%= gameRating %></p>
+    <span id="gameName"><%= gameName %></span>
+    <p id="gameRating"><%= gameRating %>% Positive Reviews</p>
     <p id="gameDescription"><%= gameDescription %></p>
     <img id="gameImage" class="game-image" src="<%= gameImage %>" alt="Game Image">
-    <p id="similarGames"><%= similarGames %></p>
+    <br>
+    <br>
+    <p class="similarTitle">More games you might like...</p>
+    <p class="similarGames"><%- similarGames %><span id="popup"><%= moreGameName %>
+      <br>
+      <span id="popupDesc"><%= truncatedDesc %></span>
+      </span>
+    </p>
   </div>
-  <%- include("templates/footer") %>
   <script src="/js/gamedetail.js"></script>
-</body>
-
-</html>
+  <%- include("templates/footer") %>
 
 
