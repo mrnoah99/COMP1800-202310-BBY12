@@ -256,11 +256,13 @@ app.post("/getCDKey", async (req, res) => {
     res.status(401).send("Unauthorized");
     return;
   }
+  // 코드 내용...
+});
 
-app.get("/redeem", (req, res) => {
-   if (!req.session.authenticated) {
-     res.redirect("/");
-     return;
+app.get("/redeem", async (req, res) => { // async 키워드 추가
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
   }
   res.render("redeem");
   const user = await userCollection.findOne({ username: req.session.username });
@@ -272,6 +274,7 @@ app.get("/redeem", (req, res) => {
   await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
   res.json({ cdKey });
 });
+
 
 
 //Warehouse page
