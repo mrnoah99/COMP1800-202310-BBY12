@@ -1120,7 +1120,7 @@ app.get('/game', (req, res) => {
 });
 
 app.get('/api/game', (req, res) => {
-  fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
+  fs.readFile("public/datasets/steam_games-part1.json", 'UTF-8', (err, data) => {
     if (err) {
       console.error("Error reading file: ", err);
       res.status(500).send("Internal Server Error");
@@ -1136,6 +1136,7 @@ app.get('/api/game', (req, res) => {
     }
   });
 });
+
 
 
 
