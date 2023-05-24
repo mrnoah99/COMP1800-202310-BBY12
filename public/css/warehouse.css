@@ -1,14 +1,13 @@
+
+
 .warehouse_container {
     font-family: 'Russo One', sans-serif;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    height: 85vh;
-    border: 1px solid black;
-    grid-gap: 50px;
-    width: 100%;
-    background-color: #E5ECEC;
+    height:80vh;
+    grid-gap: 70px;
 }
 
 .key1 {
@@ -21,7 +20,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-    background-color: #FCFDFD;
+    background-color: #E5ECEC;
 }
 
 .key1_name {
@@ -44,7 +43,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-    background-color: #FCFDFD;
+    background-color: #E5ECEC;
 }
 
 .key2_name {
@@ -68,7 +67,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-    background-color: #FCFDFD;
+    background-color: #E5ECEC;
 }
 
 .key3_name {
