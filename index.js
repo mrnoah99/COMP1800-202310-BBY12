@@ -80,6 +80,21 @@ fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
   }
 });
 
+fs.readFile("public/datasets/steamgamestest.json", 'UTF-8', (err, data) => {
+  if (err) {
+    console.error("Error reading file: ", err);
+    return;
+  }
+
+  try {
+    let testData = JSON.parse(data);
+    console.log("Test:\n" + Object.keys(testData));
+    console.log("Test 2:\n" + Object.values(testData)[3].name);
+  } catch (error) {
+    console.error("Error parsing JSON: ", error);
+  }
+});
+
 app.get("/", (req, res) => {
   if (!req.session.authenticated) {
     const errorMsg = req.query.errorMsg;
@@ -363,7 +378,7 @@ app.get("/redeem", async (req, res) => {
      res.redirect("/");
      return;
   }
-  res.render("redeem");
+  res.render("redeem", {title: "Redeem"});
   const user = await userCollection.findOne({ username: req.session.username });
   if (!user || user.cdKeys.length === 0) {
     res.status(400).send("No CD keys left");
@@ -501,14 +516,6 @@ app.get("/event", (req, res) => {
     return;
   }
   res.render("event", { title: "Event" });
-});
-
-app.get("/profile", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("profile", {username: "test", email: "test@email.ca", phone: "(111) 111-1111", title: "Profile", image: "/img/steam_logo.png"});
 });
 
 app.post("/loginSubmit", async (req, res) => {
@@ -1190,6 +1197,10 @@ app.get('/games/minecraft', (req, res) => {
 
   res.render('minecraft', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
 });
+
+app.get("*", (req, res) => {
+  res.render("404");
+})
 
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
