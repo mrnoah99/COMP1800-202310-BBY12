@@ -1,5 +1,5 @@
-<!-- <!DOCTYPE html>
-<html lang="en"> -->
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="UTF-8">
     <title>Profile Page</title>
@@ -10,19 +10,12 @@
     <%- include("templates/header") %>
     <!-- whatever you need to link -->
     <%- include("templates/navbar") %>
-  <!-- Add a transparent button below navbar -->
-  <button id="secret-button" style="opacity: 0; position: fixed; right: 0;">Hidden Button</button>
 
 
-  <!-- Image overlay -->
-  <div id="gif-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;">
-    <img id="love-gif" src="/img/tong.gif" alt="Love GIF" style="width: 100%; height: 100%;">
-  </div>
 
     <div class="profile-header">
 <!-- profile.ejs -->
-<img id="profile-image" src="<%= locals.image ? `${locals.image}?t=${locals.timestamp}` : '/default-image.jpg' %>" alt="User Image">
-
+<img id="profile-image" src="<%= image ? `${image}?t=${locals.timestamp}` : '/default-image.jpg' %>" alt="User Image">
 
 
       <div class="profile-info">
@@ -62,8 +55,9 @@
     </div>
     <%- include("templates/footer") %>
 
+
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    
     <script>
       $("#password-form").submit(function(e) {
         e.preventDefault();
@@ -91,54 +85,7 @@
         });
       });
     </script>
-
-      <script>
-        $("#secret-button").click(function() {
-          $("#gif-overlay").show();
-          setTimeout(function() {
-            $("#gif-overlay").hide();
-          }, 3000); // 3 seconds
-        });
-      </script>
-      <!-- ... -->
-<!-- <script>
-  function uploadProfileImage() {
-    const inputElement = document.createElement("input");
-    inputElement.type = "file";
-    inputElement.accept = "image/*";
-    inputElement.onchange = function () {
-      const file = inputElement.files[0];
-
-      if (file) {
-        const reader = new FileReader();
-
-        reader.onload = function (e) {
-          const imageUrl = e.target.result;
-
-          // 이미지를 Cloudinary에 업로드하고 저장하는 코드를 작성해야 합니다.
-          // imageUrl 변수를 활용하여 Cloudinary에 업로드하는 코드를 작성하세요.
-
-          // 업로드가 완료되면, Cloudinary에서 반환된 이미지 URL을 받아와서
-          // 이미지를 프로필에 표시하는 코드를 작성하세요.
-
-          // 예시: 프로필 이미지의 소스 변경
-          const profileImageElement = document.getElementById("profile-image");
-          profileImageElement.src = imageUrl;
-        };
-
-        reader.readAsDataURL(file);
-      }
-    };
-
-    inputElement.click();
-  }
-
-  const saveProfilePictureButton = document.getElementById("save-profile-picture-button");
-  saveProfilePictureButton.addEventListener("click", uploadProfileImage);
-</script>
-... -->
-
     <script src="/js/profile.js"></script>
   </body>
-<!-- </html> -->
+</html>
 
