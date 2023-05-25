@@ -34,7 +34,9 @@ body {
   justify-content: space-between;
   align-items: center;
   background-color: #104563;
-  margin-top: 5vh;
+  min-height: 10vh;
+  max-height: 15vh;
+  margin-top: 10vh;
 }
 
 .footer-icon {

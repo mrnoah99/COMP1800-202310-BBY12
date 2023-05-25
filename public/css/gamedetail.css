@@ -6,33 +6,34 @@ body {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 60vw;
   margin: 20px auto;
-  background-color: #fff;
+  background-color: #ffffff;
   padding: 20px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
 }
 
 .game-image {
-  width: 550px;
+  width: 55vw;
   height: auto;
   margin-bottom: 10px;
 }
 
 #gameName {
-  font-size: 24pt;
+  font-size: 32pt;
   font-weight: bold;
-  color: #333;
-  background-color: #f2f2f2;
-  padding: 10px;
-  margin-bottom: 15px;
+}
+
+#storeLink {
+  font-size: 12pt;
+  margin-left: 30vw;
 }
 
 #gameRating {
   font-size: 10pt;
-  color: #888;
-  margin-bottom: 20px;
+  color: #999999;
+  margin: 0px;
 }
 
 #gameDescription {
@@ -42,13 +43,55 @@ body {
   margin-bottom: 10px;
 }
 
+#recAge {
+  font-size: 10pt;
+  color: #999999;
+  margin: 0px;
+}
+
+#releaseDate {
+  font-size: 10pt;
+  color: #999999;
+  margin: 0px;
+}
+
+#price {
+  font-size: 12pt;
+  color: #444444;
+  margin-bottom: 20px;
+}
+
+#platforms {
+  font-size: 10pt;
+  color: #999999;
+  margin: 0px;
+}
+
+#languages {
+  font-size: 10pt;
+  color: #999999;
+  margin: 0px;
+}
+
+#categories {
+  font-size: 10pt;
+  color: #999999;
+  margin: 0px;
+}
+
+#tags {
+  font-size: 10pt;
+  color: #999999;
+  margin: 0px;
+}
+
 .similarTitle {
   font-size: 16pt;
 }
 
 .similarGames {
   font-size: 12pt;
-  color: #777;
+  color: #777777;
   margin-bottom: 10px;
 }
 
@@ -56,30 +99,43 @@ body {
   width: 150px;
   height: 100px;
   object-fit: cover;
+  transition: all 0.5s;
+  transition-timing-function: cubic-bezier(0.48, 0.25, 0.33, 1.23);
+  margin-right: 3vw;
 }
 
 .moregame:hover {
-  width: 200px;
-  height: 110px;
+  transition: all 1s;
+  transition-timing-function: cubic-bezier(0.48, 0.25, 0.33, 1.23);
+  width: 240px;
+  height: 120px;
   object-fit: cover;
   z-index: 1;
 }
 
-#popup {
+.popup {
+  transition: all 1s;
+  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
   z-index: 1;
   background-color: #93d8ff;
   color: black;
-  display: none;
-  width: 320px;
-  height: 190px;
+  display: inline;
+  width: 35vw;
+  height: auto;
   margin: 0px;
   position: absolute;
-  bottom: 80px;
-  left: 200px;
+  left: 30vw;
   font-size: 16pt;
+  transform: scale(0);
 }
 
-#popupDesc {
+.popup.focused {
+  transition: all 2s;
+  transition-timing-function: cubic-bezier(0.075, 0.82, 0.165, 1);
+  transform: scale(1) translatey(-25vh);
+}
+
+.popupDesc {
   font-size: 12pt;
 }
 

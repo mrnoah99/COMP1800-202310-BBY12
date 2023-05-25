@@ -18,9 +18,6 @@ const upload = multer({ dest: 'public/uploads/' });
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
 
-var { database } = require("./databaseConnection");
-const mongoose = require("mongoose");
-
 var gamesJSONData;
 
 const app = express();
@@ -72,6 +69,7 @@ app.use(session({
 
 // Gets the 55,000 games dataset loaded into a variable accessible by the rest of index.js
 const fs = require("fs");
+const { captureRejectionSymbol } = require("events");
 fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
   if (err) {
     console.error("Error reading file: ", err);
@@ -816,25 +814,58 @@ app.get('/gamedetails', (req, res) => {
   for (let i = 0; i < gamesJSONData.length; i++) {
     if (gamesJSONData[i].appid == gameID) {
       resultIndex = i;
+      break;
     }
   }
   let game = gamesJSONData[resultIndex];
-  let exampleID = 1;
-  if (resultIndex == 1) {
-    exampleID = 3;
-  }
   let gameName = game.name; // 실제 게임 이름으로 대체해야 합니다.
   let gameRating = Math.round((game.positive / (game.positive + game.negative)) * 10000) / 100; // 실제 게임 평점으로 대체해야 합니다.
   let gameDescription = game.short_description; // 실제 게임 설명으로 대체해야 합니다.
   let gameImage = game.header_image; // 실제 게임 이미지 경로로 대체해야 합니다.
-  let appid = gamesJSONData[exampleID].appid;
-  let similarGames = `<a href='/gamedetails?game_ID=${appid}'><img id='${appid}' class='moregame' onmouseleave='closeHoverMenu(${appid})' onmouseenter='openHoverMenu(${appid})' src='${gamesJSONData[exampleID].header_image}'></a>`; // 실제 유사한 게임 목록으로 대체해야 합니다.
+  let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  let releaseDate = `${game.release_date} (${months[parseInt(game.release_date.substring(5, 7)) - 1]} ${game.release_date.substring(8, game.release_date.length)}, ${game.release_date.substring(0, 4)})`;
+  let age = game.required_age;
+  let price = `${game.price.substring(0, (game.price.length-2))}.${game.price.substring((game.price.length-2), game.price.length)}`;
+  let platforms = "";
+  if (game.platforms.windows == true) {
+    platforms = 'Windows';
+  }
+  if (game.platforms.mac == true && game.platforms.windows == true) {
+    platforms = 'Windows, Mac';
+  } else if (game.platforms.mac == true) {
+    platforms = 'Mac'
+  }
+  if (game.platforms.linux == true && game.platforms.mac == true && game.platforms.windows == true) {
+    platforms = 'Windows, Mac, Linux';
+  } else if (game.platforms.linux == true && game.platforms.mac == true) {
+    platforms = 'Mac, Linux';
+  } else if (game.platforms.linux == true && game.platforms.windows == true) {
+    platforms = 'Windows, Linux';
+  }
+  if (game.platforms.linux == false && game.platforms.mac == false && game.platforms.windows == false) {
+    platforms = "Nothing, apparently";
+  }
+  let languages = game.languages;
+  let categories = "";
+  for (i = 0; i < game.categories.length; i++) {
+    categories += `${game.categories[i]}, `;
+  }
+  let tags = "";
+  for (i = 0; i < Object.keys(game.tags).length; i++) {
+    tags += `${Object.keys(game.tags)[i]}: ${Object.values(game.tags)[i]}, `;
+  }
+  let app1 = `<a href='/gamedetails?game_ID=${gamesJSONData[0].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[0].appid})' onmouseenter='openHoverMenu(${gamesJSONData[0].appid})' src='${gamesJSONData[0].header_image}'></a><span id='${gamesJSONData[0].appid}' class="popup">${gamesJSONData[0].name}<br><span class="popupDesc">${gamesJSONData[0].short_description.substring(0, 200)}...</span></span>`;
+  let app2 = `<a href='/gamedetails?game_ID=${gamesJSONData[1].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[1].appid})' onmouseenter='openHoverMenu(${gamesJSONData[1].appid})' src='${gamesJSONData[1].header_image}'></a><span id='${gamesJSONData[1].appid}' class="popup">${gamesJSONData[1].name}<br><span class="popupDesc">${gamesJSONData[1].short_description.substring(0, 200)}...</span></span>`;
+  let app3 = `<a href='/gamedetails?game_ID=${gamesJSONData[2].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[2].appid})' onmouseenter='openHoverMenu(${gamesJSONData[2].appid})' src='${gamesJSONData[2].header_image}'></a><span id='${gamesJSONData[2].appid}' class="popup">${gamesJSONData[2].name}<br><span class="popupDesc">${gamesJSONData[2].short_description.substring(0, 200)}...</span></span>`;
+  let app4 = `<a href='/gamedetails?game_ID=${gamesJSONData[3].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[3].appid})' onmouseenter='openHoverMenu(${gamesJSONData[3].appid})' src='${gamesJSONData[3].header_image}'></a><span id='${gamesJSONData[3].appid}' class="popup">${gamesJSONData[3].name}<br><span class="popupDesc">${gamesJSONData[3].short_description.substring(0, 200)}...</span></span>`;
+  let similarGames = `${app1}${app2}${app3}${app4}`; // 실제 유사한 게임 목록으로 대체해야 합니다.
 
   res.render('gamedetail', {
     gameName: gameName, gameRating: gameRating, gameDescription: gameDescription,
     gameImage: gameImage, similarGames: similarGames, title: `${gameName} Details`,
-    truncatedDesc: `${gamesJSONData[exampleID].short_description.substring(0, 200)}...`,
-    moreGameName: `${gamesJSONData[exampleID].name}`
+    storeLink: `https://store.steampowered.com/app/${game.appid}/${game.name.replace(" ", "_")}`,
+    categories: categories, languages: languages, platforms: platforms, price: price,
+    tags: tags, releaseDate: releaseDate, age: age
   });
 
 
