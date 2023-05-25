@@ -1,17 +1,30 @@
+document.getElementById('filter-btn').addEventListener('click', function () {
+  const filterMenu = document.getElementById('filter-menu');
+  if (filterMenu.style.display === 'none') {
+    filterMenu.style.display = 'block';
+  } else {
+    filterMenu.style.display = 'none';
+  }
+});
+
+
+
 function displayGames(gamesArray) {
-  let html = '<table>';
+  let html = '';
   gamesArray.forEach(game => {
-    html += `<tr>
-               <td><img src="${game.header_image}" alt="${game.name}" /></td>
-               <td>${game.name}</td>
-               <td>${game.short_description}</td>
-               <td>${game.price}</td>
-               <td>${game.genre}</td>
-             </tr>`;
+    let genreString = game.genres ? game.genres.join(', ') : 'No Genre Provided';
+    html += `<div class="game-container">
+               <img src="${game.header_image}" alt="${game.name}" class="game-image"/>
+               <h2 class="game-title">${game.name}</h2>
+               <p class="game-price">${game.price}</p>
+               <p class="game-genre">${genreString}</p> 
+               <a href="${game.website}" target="_blank" class="btn btn-primary game-detail">See Detail</a>
+             </div>`;
   });
-  html += '</table>';
   document.getElementById('gameList').innerHTML = html;
 }
+
+
 
 let page = 1;
 let pageSize = 10;
@@ -96,4 +109,3 @@ document.getElementById('cheap').addEventListener('click', function () {
 });
 
 loadPage(); // Load the first page on initial run
-

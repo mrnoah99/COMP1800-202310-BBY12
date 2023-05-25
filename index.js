@@ -12,15 +12,13 @@ const mime = require('mime');
 var { database } = require("./databaseConnection");
 const mongoose = require("mongoose");
 const ObjectID = mongoose.Types.ObjectId;
+const fs = require('fs');
 
 const upload = multer({ dest: 'public/uploads/' });
 
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
-
-var { database } = require("./databaseConnection");
-const mongoose = require("mongoose");
-const ObjectID = mongoose.Types.ObjectId;
+const port = process.env.PORT || 2000;
 
 const app = express();
 
@@ -75,16 +73,52 @@ app.get('/nosql-injection', async (req, res) => {
   }
   //console.log("user: "+name);
 
-  try {
-    gamesJSONData = JSON.parse(data);
-    console.log("All games:\n" + gamesJSONData);
-  } catch (error) {
-    console.error("Error parsing JSON: ", error);
-  }
-});
-
   const schema = Joi.string().max(100).required();
   const validationResult = schema.validate(name);
+
+  var invalid = false;
+  //If we didn't use Joi to validate and check for a valid URL parameter below
+  // we could run our userCollection.find and it would be possible to attack.
+  // A URL parameter of user[$ne]=name would get executed as a MongoDB command
+  // and may result in revealing information about all users or a successful
+  // login without knowing the correct password.
+  if (validationResult.error != null) {
+    invalid = true;
+    console.log(validationResult.error);
+    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    //    return;
+  }
+  var numRows = -1;
+  //var numRows2 = -1;
+  try {
+    const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
+    //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
+    //console.log(result);
+    numRows = result.length;
+    //numRows2 = result2.length;
+  }
+  catch (err) {
+    console.log(err);
+    res.send(`<h1>Error querying db</h1>`);
+    return;
+  }
+
+  console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
+
+  // var query = {
+  //     $where: "this.name === '" + req.body.username + "'"
+  // }
+
+  // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
+
+  // console.log(result2);
+
+  res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
+  //res.send(`<h1>Hello</h1>`);
+
+});
+  const schema = Joi.string().max(100).required();
+
 
   var invalid = false;
   //If we didn't use Joi to validate and check for a valid URL parameter below
@@ -181,110 +215,7 @@ function requireLogin(req, res, next) {
   }
 }
 
-app.get("/community", requireLogin, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = 5;
-  const skip = (page - 1) * pageSize;
 
-  try {
-    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
-    const totalPosts = await postCollection.countDocuments();
-    const totalPages = Math.ceil(totalPosts / pageSize);
-
-    res.render("community", { posts: posts, totalPages: totalPages, currentPage: page, title: "Community" });
-  } catch (err) {
-    console.log(err);
-    console.error(err);
-    res.send("Error while fetching posts");
-  }
-});
-
-app.get("/community/:postId/details", requireLogin, async (req, res) => {
-  const postId = new ObjectID(req.params.postId);
-
-  try {
-    const post = await postCollection.findOne({ _id: postId });
-    res.render("post", { post: post, title: "Community" });
-  } catch (err) {
-    console.error(err);
-    res.send("Error while fetching post details");
-  }
-});
-
-
-app.post("/community", async (req, res) => {
-  const newPost = {
-    author: req.body.author,
-    title: req.body.title,
-    content: req.body.content,
-    date: new Date(),
-    preview: req.body.content.split('\n').slice(0, 4).join('\n') + '...',
-    likes: [] // Make sure this line is there
-  };
-
-  try {
-    await postCollection.insertOne(newPost);
-    res.redirect("/community");
-  } catch (err) {
-    console.log(err);
-    res.send("Error while inserting post");
-  }
-});
-
-app.post("/community/write", function (req, res) {
-  const { title, author, content } = req.body;
-
-  const newPost = {
-    title: title,
-    author: author,
-    content: content,
-    date: new Date(),
-    preview: content.split('\n').slice(0, 4).join('\n') + '...'
-  };
-
-  postCollection.insertOne(newPost)
-    .then(result => {
-      console.log('Post added successfully');
-      res.redirect('/community');
-    })
-    .catch(error => console.error(error));
-});
-
-app.get("/community/write", requireLogin, (req, res) => {
-  res.render("communitywrite",{title: "Community"});
-});
-
-app.post("/community/like/:id", async (req, res) => {
-  try {
-    const username = req.session.username;
-    if (!username) {
-      return res.json({ success: false, message: "Please log in." });
-    }
-    const post = await Post.findOne({ _id: req.params.id });
-    if (!post) {
-      return res.json({ success: false, message: "Post not found." });
-    }
-
-    post.likers = post.likers || [];
-
-    const alreadyLiked = post.likers.includes(username);
-
-
-    if (alreadyLiked) {
-
-      post.likers = post.likers.filter((liker) => liker !== username);
-    } else {
-
-      post.likers.push(username);
-    }
-
-    await post.save();
-    return res.json({ success: true, liked: !alreadyLiked });
-  } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: "An error occurred." });
-  }
-});
 
 
 app.get("/redeem", (req, res) => {
@@ -360,8 +291,7 @@ app.post("/loginSubmit", async (req, res) => {
 //   res.render("pricecompare");
 });
 
-app.get('/nosql-injection', async (req, res) => {
-  var name = req.query.user;
+
 
 //Sign Up and Sign Up Submit
 app.get("/signup", (req, res) => {
@@ -416,21 +346,21 @@ app.post("/getCDKey", async (req, res) => {
   }
 });
 
-function requireLogin(req, res, next) {
-  if (!req.session.authenticated) {
-    res.redirect("/login");
-  } else {
-    next();
-  }
-}
+// function requireLogin(req, res, next) {
+//   if (!req.session.authenticated) {
+//     res.redirect("/login");
+//   } else {
+//     next();
+//   }
+// }
 
-app.get("/community", requireLogin, async (req, res) => {
+app.get("/community", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = 5;
   const skip = (page - 1) * pageSize;
 
   try {
-    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
+    const posts = await postCollection.find({}).sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
     const totalPosts = await postCollection.countDocuments();
     const totalPages = Math.ceil(totalPosts / pageSize);
 
@@ -497,35 +427,74 @@ app.get("/community/write", requireLogin, (req, res) => {
   res.render("communitywrite",{title: "Community"});
 });
 
-app.post("/community/like/:id", async (req, res) => {
+
+const PostSchema = mongoose.Schema({
+  author: String,
+  title: String,
+  content: String,
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
+  },
+});
+
+const Post = mongoose.model("Post", PostSchema);
+
+app.get("/community/:postId/details", async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+
   try {
-    const username = req.session.username;
-    if (!username) {
-      return res.json({ success: false, message: "Please log in." });
-    }
-    const post = await Post.findOne({ _id: req.params.id });
-    if (!post) {
-      return res.json({ success: false, message: "Post not found." });
-    }
+    const post = await postCollection.findOne({ _id: postId });
+    res.render("post", { post: post, likes: post.likes.length, title: "Community" });
+  } catch (err) {
+    console.error(err);
+    res.send("Error while fetching post details");
+  }
+});
 
-    post.likers = post.likers || [];
+app.get("/community/:postId/like", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
 
-    const alreadyLiked = post.likers.includes(username);
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+    res.json({ success: true, likes: post.likes.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error while fetching like count" });
+  }
+});
 
 
-    if (alreadyLiked) {
+// index.js
+app.post("/community/:postId/like", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+  const userId = req.session.userId;
 
-      post.likers = post.likers.filter((liker) => liker !== username);
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+
+    let index = -1;
+    if (post.likes) {
+      index = post.likes.indexOf(userId);
     } else {
-
-      post.likers.push(username);
+      post.likes = [];
     }
 
-    await post.save();
-    return res.json({ success: true, liked: !alreadyLiked });
-  } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: "An error occurred." });
+    if (index > -1) {
+
+      post.likes.splice(index, 1);
+    } else {
+      
+      post.likes.push(userId);
+    }
+
+    await postCollection.updateOne({ _id: postId }, { $set: { likes: post.likes } });
+
+    res.json({ success: true, likes: post.likes.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error while processing like" });
   }
 });
 
@@ -676,14 +645,6 @@ app.get("/event", (req, res) => {
     return;
   }
   res.render("event", { title: "Event" });
-});
-
-app.get("/profile", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("profile", {username: "test", email: "test@email.ca", phone: "(111) 111-1111", title: "Profile", image: "/img/steam_logo.png"});
 });
 
 app.post("/loginSubmit", async (req, res) => {
@@ -1065,7 +1026,6 @@ app.get('/api/game', (req, res) => {
     }
   });
 });
-
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 });
