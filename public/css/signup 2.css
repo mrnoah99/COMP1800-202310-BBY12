@@ -1,0 +1,45 @@
+.member {
+    text-align: center;
+    color: #B7D7F6 ;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+}
+
+.member a {
+    text-decoration: none;
+    color: #FFFFFF;
+    
+}
+
+.agreement_line {
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 10px;
+}
+
+.agreement_line a {
+    text-decoration: none;
+    color: #FFFFFF;
+}
+
+#submit_signup {
+    font-family: 'Press Start 2P', cursive;
+}
+
+#card {
+    background-color: #0572FC;
+}
+
+#signup_title {
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+}
+
+.form-label {
+    color: #B7D7F6;
+    font-family: 'Press Start 2P', cursive;
+}
+
+hr {
+    color: whitesmoke;
+}

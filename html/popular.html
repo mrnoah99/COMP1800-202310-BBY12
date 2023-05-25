@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>Popular Game Page</title>
+    <link rel="stylesheet" href="/public/css/popular.css">
+  </head>
+  <body>
+
+      <div class="search-container">
+        <input type="text" placeholder="Search Games...">
+      </div>
+      <div class="filter-container">
+        <button class="filter">Filter</button>
+        <div class="filter-menu">
+          <ul>
+            <li><a href="#">Free Game</a></li>
+            <li><a href="#">Popular Game</a></li>
+            <li><a href="#">Low and High Price</a></li>
+            <li><a href="#">High and Low Price</a></li>
+          </ul>
+        </div>
+      </div>
+      <h1>Popular Steam Games</h1>
+      <div id="game-list"></div>
+      <script>
+        // 필터 버튼 클릭 시 필터 메뉴 보이기/숨기기
+        const filterBtn = document.querySelector('.filter');
+        const filterMenu = document.querySelector('.filter-menu');
+        filterBtn.addEventListener('click', () => {
+          filterMenu.classList.toggle('show');
+        });
+      </script>
+
+<script src="/public/js/popular.js"></script>
+  </body>
+</html>
