@@ -20,7 +20,6 @@ const bcrypt = require("bcrypt");
 const saltRounds = 12;
 const port = process.env.PORT || 2000;
 
-
 const app = express();
 
 const Joi = require("joi");
@@ -40,6 +39,8 @@ const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* END secret section */
+
+var { database } = include("databaseConnection");
 
 const userCollection = database.db(mongodb_database).collection("users");
 const postCollection = database.db(mongodb_database).collection("posts");
@@ -643,6 +644,14 @@ app.get("/searchresults", (req, res) => {
   res.render("searchresults", { title: "Search Results", search_query: search, search_results: searchResult });
 });
 
+app.get("/logout", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("logout");
+});
+
 app.get("/csvexample", (req, res) => {
   let input = "Test";
   let result = input;
@@ -712,7 +721,6 @@ app.get('/api/game', (req, res) => {
     }
   });
 });
-
 
 // Read and parse cdk.txt
 let cdkKeys = fs.readFileSync(path.join(__dirname, 'cdk.txt'), 'utf8').split('\n').filter(key => key);
@@ -892,9 +900,6 @@ app.get("/setting", (req, res) => {
   }
   res.render("setting", {title: "Setting"})
 });
-
-
-
 
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
