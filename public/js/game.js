@@ -1,3 +1,4 @@
+
 document.getElementById('filter-btn').addEventListener('click', function () {
   const filterMenu = document.getElementById('filter-menu');
   if (filterMenu.style.display === 'none') {
@@ -23,6 +24,7 @@ function displayGames(gamesArray) {
   });
   document.getElementById('gameList').innerHTML = html;
 }
+
 
 
 
@@ -108,4 +110,6 @@ document.getElementById('cheap').addEventListener('click', function () {
   loadPage();
 });
 
+
 loadPage(); // Load the first page on initial run
+
