@@ -117,64 +117,23 @@ app.get('/nosql-injection', async (req, res) => {
   //res.send(`<h1>Hello</h1>`);
 
 });
-  const schema = Joi.string().max(100).required();
 
 
-  var invalid = false;
-  //If we didn't use Joi to validate and check for a valid URL parameter below
-  // we could run our userCollection.find and it would be possible to attack.
-  // A URL parameter of user[$ne]=name would get executed as a MongoDB command
-  // and may result in revealing information about all users or a successful
-  // login without knowing the correct password.
-  // if (validationResult.error != null) {
-  //   invalid = true;
-  //   console.log(validationResult.error);
-    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-    //    return;
-  // }
-//   var numRows = -1;
-//   //var numRows2 = -1;
-//   try {
-//     const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
-//     //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
-//     //console.log(result);
-//     numRows = result.length;
-//     //numRows2 = result2.length;
-//   }
-//   catch (err) {
-//     console.log(err);
-//     res.send(`<h1>Error querying db</h1>`);
+// Gets the 55,000 games dataset loaded into a variable accessible by the rest of index.js
+// const fs = require("fs");
+// fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
+//   if (err) {
+//     console.error("Error reading file: ", err);
 //     return;
 //   }
 
-//   console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
-
-//   // var query = {
-//   //     $where: "this.name === '" + req.body.username + "'"
-//   // }
-
-//   // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
-
-//   // console.log(result2);
-
-//   res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
-//   //res.send(`<h1>Hello</h1>`);
-
-
-
-
-// const communityRouter = require('./routes/community');
-// app.use('/community', communityRouter);
-
-function requireLogin(req, res, next) {
-  if (!req.session.authenticated) {
-    res.redirect("/login");
-  } else {
-    next();
-  }
-}
-
-
+//   try {
+//     gamesJSONData = JSON.parse(data);
+//     console.log("All games:\n" + gamesJSONData);
+//   } catch (error) {
+//     console.error("Error parsing JSON: ", error);
+//   }
+// });
 
 app.get("/", (req, res) => {
   if (!req.session.authenticated) {
@@ -227,8 +186,7 @@ app.post("/loginSubmit", async (req, res) => {
     req.session.username = result[0].username;
     req.session.cookie.maxAge = expireTime;
 
-    const expireTime = 3600000; // 1시간 (밀리초)
-
+    const expireTime = 3600000;
 
     res.redirect("/");
     return;
@@ -237,7 +195,6 @@ app.post("/loginSubmit", async (req, res) => {
     res.redirect("/login?errorMsg=Invalid email/password combination.");
     return;
   }
-//   res.render("pricecompare");
 });
 
 
@@ -388,14 +345,6 @@ app.post("/community/:postId/like", requireLogin, async (req, res) => {
 });
 
 
-
-
-  
-
-
-
-
-
 app.get("/index", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/login");
@@ -446,19 +395,6 @@ app.post("/loginSubmit", async (req, res) => {
     return;
   }
   res.render("pricecompare");
-});
-
-
-app.get('/gamedetail', (req, res) => {
-  const gameName = 'Game Name'; 
-  const gameRating = 'Game Rating'; 
-  const gameDescription = 'Game Description';
-  const gameImage = 'path/to/game/image.jpg'; 
-  const similarGames = ['Similar Game 1', 'Similar Game 2'];
-
-  res.render('gamedetail', { gameName: 'Example Game', gameRating: 8.5, gameDescription: 'This is an example game.', gameImage: '/images/example.jpg', similarGames: ['Game A', 'Game B', 'Game C'], title: 'Game Detail' });
-
-
 });
 
 app.get('/profile', async (req, res) => {
@@ -964,8 +900,6 @@ app.get("/setting", (req, res) => {
   }
   res.render("setting", {title: "Setting"})
 });
-
-
 
 app.listen(port, () => {
   console.log("Node application listening on port " + port);

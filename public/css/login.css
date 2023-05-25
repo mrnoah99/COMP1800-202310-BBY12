@@ -49,15 +49,22 @@
     display: block;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 #card {
     background-color: #0572FC;
-    width: 100vw;
-    height: 100vh;
-    margin: 0; 
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
 }
+
 
 
 #signin_title {
@@ -78,4 +85,3 @@ hr {
 #email {
     margin-top: 40px;
 }
-
