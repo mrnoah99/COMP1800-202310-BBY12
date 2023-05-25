@@ -1,7 +1,12 @@
+
+
 <%- include("templates/header") %>
+
+
+
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 
-    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+
 
     <style>
         .card {
@@ -15,73 +20,91 @@
         #comnav {
             margin-bottom: 10vh;
         }
+
+
     </style>
+
     <%- include("templates/navbar") %>
+            <div class="container my-3">
+                    <% posts.forEach(function(post) { %>
 
-        <div class="container my-3">
-            <% posts.forEach(function(post) { %>
-                <div class="card mb-3">
-                    <div class="card-body">
-                        <a href="/community/<%= post._id %>/details" style="text-decoration: none; color: inherit;">
-                            <div class="row border-bottom pb-2 mb-2">
-                                <div class="col-md-8">
-                                    <h5 class="card-title">
-                                        <%= post.title %>
-                                    </h5>
-                                </div>
-                                <div class="col-md-4">
-                                    <p class="card-text">Posted on <%= new Date(post.date).toLocaleString('en-US', {
-                                            weekday: 'long' , year: 'numeric' , month: 'long' , day: 'numeric' ,
-                                            hour: 'numeric' , minute: 'numeric' }) %>
-                                    </p>
-                                </div>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <a href="/community/<%= post._id %>/details" style="text-decoration: none; color: inherit;">
+                                <div class="row border-bottom pb-2 mb-2">
+                                    <div class="col-md-8">
+                                        <h5 class="card-title">
 
+                                            <%= post.title %>
+                                        </h5>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <p class="card-text">Posted on <%= new Date(post.date).toLocaleString('en-US', {
+                                                weekday: 'long' , year: 'numeric' , month: 'long' , day: 'numeric' ,
+                                                hour: 'numeric' , minute: 'numeric' }) %>
+                                        </p>
+                                    </div>
+                                </div>
+                                <p class="border-bottom pb-2 mb-2">Author: <%= post.author %>
+                                </p>
+                                <p class="card-text">
+                                    <%- (post.preview || '' ).split('\n').join('<br>') %>
+
+                                </p>
+                            </a>
+                            <div class="btn-group float-right">
+
+                                <button
+                                    class="btn btn-primary like-button <%= post.likers && post.likers.includes(req.session.username) ? 'liked' : '' %>"
+                                    data-id="<%= post._id %>">
+
+                                    <i class="fa fa-thumbs-up"></i>
+                                    <span class="like-count">
+
+                                        <%= post.likers ? post.likers.length : 0 %>
+
+                                    </span>
+
+                                </button>
+
+                                <a href="#" class="btn btn-secondary"><i class="fa fa-comment"></i></a>
+                                <a href="#" class="btn btn-success"><i class="fa fa-share"></i></a>
                             </div>
-                            <p class="border-bottom pb-2 mb-2">Author: <%= post.author %>
-                            </p>
-                            <p class="card-text">
-                                <%- (post.preview || '' ).split('\n').join('<br>') %>
-                            </p>
-                        </a>
-                        <div class="btn-group float-right">
-                            <button
-                                class="btn btn-primary like-button <%= post.likers && post.likers.includes(req.session.username) ? 'liked' : '' %>"
-                                data-id="<%= post._id %>">
-                                <i class="fa fa-thumbs-up"></i>
-                                <span class="like-count">
-                                    <%= post.likers ? post.likers.length : 0 %>
-                                </span>
-                            </button>
-                            <a href="#" class="btn btn-secondary"><i class="fa fa-comment"></i></a>
-                            <a href="#" class="btn btn-success"><i class="fa fa-share"></i></a>
-                            <button onclick="deletePost('<%= post._id %>')" class="btn btn-danger"><i class="fa fa-trash"></i></button>
-                            <button onclick="editPost('<%= post._id %>')" class="btn btn-info"><i
-                                    class="fa fa-edit"></i></button>
                         </div>
                     </div>
-                </div>
-                <% }); %>
-                    <div class="input-group mb-3">
-                        <input type="text" class="form-control" placeholder="Search posts..." aria-label="Search posts">
-                        <div class="input-group-append">
-                            <button class="btn btn-outline-secondary" type="button">Search</button>
-                        </div>
-                    </div>
-                    <button class="btn btn-primary" type="button"
-                        onclick="location.href='/community/write'">Post</button>
-        </div>
-        <nav aria-label="Page navigation" id="comnav">
-            <ul class="pagination justify-content-center">
-                <% for(let i=1; i <=totalPages; i++) { %>
-                    <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-                        <a class="page-link" href="/community?page=<%= i %>">
-                            <%= i %>
-                        </a>
-                    </li>
-                    <% } %>
-            </ul>
-        </nav>
-        <script src="/js/like.js"></script>
-        <script src="/js/deletePost.js"></script>
-        <%- include("templates/footer") %>
 
+                    <% }); %>
+
+                   
+
+
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Search posts..."
+                                aria-label="Search posts">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button">Search</button>
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" type="button"
+                            onclick="location.href='/community/write'">Post</button>
+            </div>
+
+            <nav aria-label="Page navigation" id="comnav">
+                <ul class="pagination justify-content-center">
+
+                    <% for(let i=1; i <=totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="/community?page=<%= i %>">
+                                <%= i %>
+                            </a>
+                        </li>
+                        <% } %>
+                </ul>
+            </nav>
+            <script src="/js/like.js"></script>
+
+
+
+
+
+            <%- include("templates/footer") %>
