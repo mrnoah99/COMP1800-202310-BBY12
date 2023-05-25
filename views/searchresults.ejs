@@ -1,0 +1,13 @@
+<%- include("templates/header") %>
+<link href="/css/searchresults.css" rel="stylesheet">
+<%- include("templates/navbar") %>
+<div id="container">
+    <input type="text" name="search" id="search-bar" value="<%= search_query %>">
+    <button id="search-button" onclick="search()"><img src="/img/search_icon.png" id="search-icon"></button>
+</div>
+<div class="text-center">
+    <span id="top-text">Search Results for "<%= search_query %>"</span>
+</div>
+<%- search_results %>
+<script src="/js/search.js"></script>
+<%- include("templates/footer") %>

@@ -42,11 +42,11 @@ body {
   margin-bottom: 10px;
 }
 
-#similarTitle {
+.similarTitle {
   font-size: 16pt;
 }
 
-#similarGames {
+.similarGames {
   font-size: 12pt;
   color: #777;
   margin-bottom: 10px;
@@ -65,6 +65,25 @@ body {
   z-index: 1;
 }
 
+#popup {
+  z-index: 1;
+  background-color: #93d8ff;
+  color: black;
+  display: none;
+  width: 320px;
+  height: 190px;
+  margin: 0px;
+  position: absolute;
+  bottom: 80px;
+  left: 200px;
+  font-size: 16pt;
+}
+
+#popupDesc {
+  font-size: 12pt;
+}
+
+/* 
 ul {
   list-style-type: none;
   display: flex;
@@ -85,4 +104,4 @@ li .game-card img {
 
 li .game-card .game-name {
   margin-top: 5px;
-}
+} */

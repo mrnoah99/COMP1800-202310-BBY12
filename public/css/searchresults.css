@@ -14,7 +14,56 @@ body {
 }
 
 #top-text {
-    font-size: 20pt;
+    font-size: 36pt;
+}
+
+.card {
+    margin-top: 100px;
+    display: grid;
+    background-color: #94e9ff;
+    grid-template-columns: [img title] 25vw [desc] 70vw;
+    grid-template-rows: [title] 15vh [img desc] 30vh [links reviews] 10vh;
+}
+
+.desc {
+    font-size: 16pt;
+    grid-column: desc;
+    grid-row: desc / links;
+}
+
+.game-title {
+    margin-left: 1vw;
+    font-size: 24pt;
+    justify-self: left;
+    grid-column: title / desc;
+    grid-row: title / desc;
+}
+
+.game-img {
+    width: 300px;
+    height: auto;
+    margin-right: 3vw;
+    display: block;
+    justify-self: left;
+    grid-column: img / desc;
+    grid-row: img / links;
+}
+
+.overall-rating {
+    grid-column: desc;
+    grid-row: title / desc;
+    font-size: 10pt;
+}
+
+.links {
+    grid-column: title;
+    grid-row: links;
+    font-size: 14pt;
+}
+
+.detail-button {
+    height: 50px;
+    width: auto;
 }
 
 #container {
@@ -30,12 +79,19 @@ body {
 #search-bar {
     grid-column: searchbar-start / searchbar-end;
     grid-row: searchbar-start / searchbar-end;
+    height: 40px;
 }
 
 #search-button {
     grid-column: searchbar-icon / searchbar-end;
     grid-row: searchbar-start / searchbar-end;
     background-color: #005687;
+    width: 80px;
+    height: 40px;
+}
+
+#search-button:hover {
+    cursor: pointer;
 }
 
 #search-icon {
