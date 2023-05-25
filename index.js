@@ -166,47 +166,6 @@ app.get('/nosql-injection', async (req, res) => {
 // const communityRouter = require('./routes/community');
 // app.use('/community', communityRouter);
 
-
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
-
-app.post("/signupSubmit", async (req, res) => {
-  var username = req.body.username;
-  var password = req.body.password;
-  var email = req.body.email;
-  var phone = req.body.phone;
-
-  const schema = Joi.object({
-    username: Joi.string().alphanum().max(20).required(),
-    password: Joi.string().max(20).required(),
-    email: Joi.string().email().required(),
-    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
-  });
-
-  const validationResult = schema.validate({ username, email, password, phone });
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
-    res.redirect("/signup");
-    return;
-  }
-
-  var hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  await userCollection.insertOne({
-    username: username,
-    password: hashedPassword,
-    email: email,
-    phone: phone,
-  });
-  console.log("User has been inserted");
-
-  req.session.authenticated = true;
-  req.session.username = username;
-  req.session.remainingQuantity = 10
-  res.redirect("/index");
-});
-
 function requireLogin(req, res, next) {
   if (!req.session.authenticated) {
     res.redirect("/login");
@@ -215,16 +174,6 @@ function requireLogin(req, res, next) {
   }
 }
 
-
-
-
-app.get("/redeem", (req, res) => {
-  // if (!req.session.authenticated) {
-  //   res.redirect("/");
-  //   return;
-  // }
-  res.render("redeem");
-});
 
 
 app.get("/", (req, res) => {
@@ -293,66 +242,6 @@ app.post("/loginSubmit", async (req, res) => {
 
 
 
-//Sign Up and Sign Up Submit
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
-
-let remainingQuantity = 10;
-
-
-app.post("/signupSubmit", async (req, res) => {
-  var username = req.body.username;
-  var password = req.body.password;
-  var email = req.body.email;
-  var phone = req.body.phone;
-
-  const schema = Joi.object({
-    username: Joi.string().alphanum().max(20).required(),
-    password: Joi.string().max(20).required(),
-    email: Joi.string().email().required(),
-    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
-  });
-
-  const validationResult = schema.validate({ username, email, password, phone });
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
-    res.redirect("/signup");
-    req.session.cdKeys = cdKeys;
-    return;
-  }
-  
-  var hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  await userCollection.insertOne({
-    username: username,
-    password: hashedPassword,
-    email: email,
-    phone: phone,
-  });
-  console.log("User has been inserted");
-
-  req.session.authenticated = true;
-  req.session.username = username;
-  req.session.remainingQuantity = 10
-  req.session.remainingQuantity = remainingQuantity;
-  res.redirect("/event");
-});
-
-app.post("/getCDKey", async (req, res) => {
-  if (!req.session.authenticated) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-});
-
-// function requireLogin(req, res, next) {
-//   if (!req.session.authenticated) {
-//     res.redirect("/login");
-//   } else {
-//     next();
-//   }
-// }
 
 app.get("/community", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
@@ -441,7 +330,7 @@ const PostSchema = mongoose.Schema({
 
 const Post = mongoose.model("Post", PostSchema);
 
-app.get("/community/:postId/details", async (req, res) => {
+app.get("/community/:postId/details", requireLogin, async (req, res) => {
   const postId = new ObjectID(req.params.postId);
 
   try {
@@ -498,137 +387,16 @@ app.post("/community/:postId/like", requireLogin, async (req, res) => {
   }
 });
 
-app.get("/redeem", async (req, res) => {
-   if (!req.session.authenticated) {
-     res.redirect("/");
-     return;
-  }
-  res.render("redeem");
-  const user = await userCollection.findOne({ username: req.session.username });
-  if (!user || user.cdKeys.length === 0) {
-    res.status(400).send("No CD keys left");
-    return;
-  }
-  const cdKey = user.cdKeys.pop();
-  await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
-  res.json({ cdKey });
-});
 
 
-//Warehouse page
-// app.get("/warehouse", (req, res) => {
-//   if (!req.session.authenticated) {
-//     res.redirect("/");
-//     return;
-//   }
-//   res.render("warehouse");
-// });
-
-app.get("/warehouse", async (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  const user = await userCollection.findOne({ username: req.session.username });
-  res.render("warehouse" ,{ title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
-});
 
 
-//Redeem Page and Functionality
-app.get("/redeem", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("redeem", {title: "Redeem"})
-});
-
-app.get("/getRemainingQuantity", (req, res) => {
-  if (!req.session.authenticated) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-  res.json({ remainingQuantity: remainingQuantity });
-});
-
-app.post("/updateRemainingQuantity", (req, res) => {
-  if (!req.session.authenticated) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-  req.session.remainingQuantity -= 1;
-  res.json({ remainingQuantity: req.session.remainingQuantity });
-});
-
-app.post("/resetRemainingQuantity", (req, res) => {
-  if (!req.session.authenticated) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-  remainingQuantity = 10;
-  res.json({ remainingQuantity: remainingQuantity });
-});
-
-
-app.get("/redeemKey", async (req, res) => {
-  if (!req.session.authenticated) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
 
   
 
-  // Get the user from the database
-  const user = await userCollection.findOne({ username: req.session.username });
-  
-  // If the user has already redeemed a key, return an error
-  if (user.redeemedKey) {
-    res.status(400).json({ message: "You have already redeemed a key.", cdKey: user.redeemedKey });
-    return;
-  }
-
-  // If no keys are left, return an error
-  if (cdkKeys.length === 0 || remainingQuantity === 0) {
-    res.status(400).json({ message: "No keys left to redeem." });
-    return;
-  }
-
-  // Pick a random key
-  const randomIndex = Math.floor(Math.random() * cdkKeys.length);
-  const redeemedKey = cdkKeys[randomIndex];
-  cdkKeys = cdkKeys.filter((_, index) => index !== randomIndex);
-
-  // Update the user document in the database
-  await userCollection.updateOne({ username: req.session.username }, { $set: { redeemedKey } });
-
-  // Write the updated keys from cdk.txt
-  fs.writeFileSync(path.join(__dirname, 'cdk.txt'), cdkKeys.join('\n'));
-
-  remainingQuantity -= 1;
-
-  // Respond with the redeemed key
-  res.json({ cdKey: redeemedKey, remainingQuantity: remainingQuantity });
-});
 
 
-//Event Page
-app.get("/event", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("event", {title: "Event"})
-});
 
-
-//Setting Page
-app.get("/setting", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("setting", {title: "Setting"})
-});
 
 app.get("/index", (req, res) => {
   if (!req.session.authenticated) {
@@ -639,13 +407,6 @@ app.get("/index", (req, res) => {
   res.render("index", { username: req.session.username, title: "Home Page" });
 });
 
-app.get("/event", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("event", { title: "Event" });
-});
 
 app.post("/loginSubmit", async (req, res) => {
 
@@ -1026,6 +787,188 @@ app.get('/api/game', (req, res) => {
     }
   });
 });
+
+// Read and parse cdk.txt
+let cdkKeys = fs.readFileSync(path.join(__dirname, 'cdk.txt'), 'utf8').split('\n').filter(key => key);
+
+//Sign Up and Sign Up Submit
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
+
+let remainingQuantity = 10;
+
+
+app.post("/signupSubmit", async (req, res) => {
+  var username = req.body.username;
+  var password = req.body.password;
+  var email = req.body.email;
+  var phone = req.body.phone;
+
+  const schema = Joi.object({
+    username: Joi.string().alphanum().max(20).required(),
+    password: Joi.string().max(20).required(),
+    email: Joi.string().email().required(),
+    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
+  });
+
+  const validationResult = schema.validate({ username, email, password, phone });
+  if (validationResult.error != null) {
+    console.log(validationResult.error);
+    res.redirect("/signup");
+    req.session.cdKeys = cdKeys;
+    return;
+  }
+  
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  await userCollection.insertOne({
+    username: username,
+    password: hashedPassword,
+    email: email,
+    phone: phone,
+  });
+  console.log("User has been inserted");
+
+  req.session.authenticated = true;
+  req.session.username = username;
+  req.session.remainingQuantity = 10
+  req.session.remainingQuantity = remainingQuantity;
+  res.redirect("/event");
+});
+
+app.post("/getCDKey", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  const user = await userCollection.findOne({ username: req.session.username });
+  if (!user || user.cdKeys.length === 0) {
+    res.status(400).send("No CD keys left");
+    return;
+  }
+  const cdKey = user.cdKeys.pop();
+  await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
+  res.json({ cdKey });
+});
+
+
+//Warehouse page
+// app.get("/warehouse", (req, res) => {
+//   if (!req.session.authenticated) {
+//     res.redirect("/");
+//     return;
+//   }
+//   res.render("warehouse");
+// });
+
+app.get("/warehouse", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  const user = await userCollection.findOne({ username: req.session.username });
+  res.render("warehouse" ,{ title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
+});
+
+
+//Redeem Page and Functionality
+app.get("/redeem", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("redeem", {title: "Redeem"})
+});
+
+app.get("/getRemainingQuantity", (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+  res.json({ remainingQuantity: remainingQuantity });
+});
+
+app.post("/updateRemainingQuantity", (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+  req.session.remainingQuantity -= 1;
+  res.json({ remainingQuantity: req.session.remainingQuantity });
+});
+
+// app.post("/resetRemainingQuantity", (req, res) => {
+//   if (!req.session.authenticated) {
+//     res.status(401).send("Unauthorized");
+//     return;
+//   }
+//   remainingQuantity = 10;
+//   res.json({ remainingQuantity: remainingQuantity });
+// });
+
+
+app.get("/redeemKey", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
+  // Get the user from the database
+  const user = await userCollection.findOne({ username: req.session.username });
+  
+  // If the user has already redeemed a key, return an error
+  if (user.redeemedKey) {
+    res.status(400).json({ message: "You have already redeemed a key.", cdKey: user.redeemedKey });
+    return;
+  }
+
+  // If no keys are left, return an error
+  if (cdkKeys.length === 0 || remainingQuantity === 0) {
+    res.status(400).json({ message: "No keys left to redeem." });
+    return;
+  }
+
+  // Pick a random key
+  const randomIndex = Math.floor(Math.random() * cdkKeys.length);
+  const redeemedKey = cdkKeys[randomIndex];
+  cdkKeys = cdkKeys.filter((_, index) => index !== randomIndex);
+
+  // Update the user document in the database
+  await userCollection.updateOne({ username: req.session.username }, { $set: { redeemedKey } });
+
+  // Write the updated keys from cdk.txt
+  fs.writeFileSync(path.join(__dirname, 'cdk.txt'), cdkKeys.join('\n'));
+
+  remainingQuantity -= 1;
+
+  // Respond with the redeemed key
+  res.json({ cdKey: redeemedKey, remainingQuantity: remainingQuantity });
+});
+
+
+//Event Page
+app.get("/event", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("event", {title: "Event"})
+});
+
+
+//Setting Page
+app.get("/setting", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("setting", {title: "Setting"})
+});
+
+
+
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 });
