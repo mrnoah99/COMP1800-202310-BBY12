@@ -13,14 +13,13 @@ var { database } = require("./databaseConnection");
 const mongoose = require("mongoose");
 const ObjectID = mongoose.Types.ObjectId;
 
+
 const upload = multer({ dest: 'public/uploads/' });
 
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
+var gamesJSONData;
 
-var { database } = require("./databaseConnection");
-const mongoose = require("mongoose");
-const ObjectID = mongoose.Types.ObjectId;
 
 const app = express();
 
@@ -42,11 +41,12 @@ const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 const node_session_secret = process.env.NODE_SESSION_SECRET;
 /* END secret section */
 
-var { database } = include("databaseConnection");
 
 const userCollection = database.db(mongodb_database).collection("users");
 const postCollection = database.db(mongodb_database).collection("posts");
 
+
+const port = process.env.PORT || 3200;
 
 app.use(express.urlencoded({ extended: false }));
 
@@ -82,6 +82,7 @@ app.get('/nosql-injection', async (req, res) => {
     console.error("Error parsing JSON: ", error);
   }
 });
+
 
   const schema = Joi.string().max(100).required();
   const validationResult = schema.validate(name);
@@ -181,112 +182,6 @@ function requireLogin(req, res, next) {
   }
 }
 
-app.get("/community", requireLogin, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = 5;
-  const skip = (page - 1) * pageSize;
-
-  try {
-    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
-    const totalPosts = await postCollection.countDocuments();
-    const totalPages = Math.ceil(totalPosts / pageSize);
-
-    res.render("community", { posts: posts, totalPages: totalPages, currentPage: page, title: "Community" });
-  } catch (err) {
-    console.log(err);
-    console.error(err);
-    res.send("Error while fetching posts");
-  }
-});
-
-app.get("/community/:postId/details", requireLogin, async (req, res) => {
-  const postId = new ObjectID(req.params.postId);
-
-  try {
-    const post = await postCollection.findOne({ _id: postId });
-    res.render("post", { post: post, title: "Community" });
-  } catch (err) {
-    console.error(err);
-    res.send("Error while fetching post details");
-  }
-});
-
-
-app.post("/community", async (req, res) => {
-  const newPost = {
-    author: req.body.author,
-    title: req.body.title,
-    content: req.body.content,
-    date: new Date(),
-    preview: req.body.content.split('\n').slice(0, 4).join('\n') + '...',
-    likes: [] // Make sure this line is there
-  };
-
-  try {
-    await postCollection.insertOne(newPost);
-    res.redirect("/community");
-  } catch (err) {
-    console.log(err);
-    res.send("Error while inserting post");
-  }
-});
-
-app.post("/community/write", function (req, res) {
-  const { title, author, content } = req.body;
-
-  const newPost = {
-    title: title,
-    author: author,
-    content: content,
-    date: new Date(),
-    preview: content.split('\n').slice(0, 4).join('\n') + '...'
-  };
-
-  postCollection.insertOne(newPost)
-    .then(result => {
-      console.log('Post added successfully');
-      res.redirect('/community');
-    })
-    .catch(error => console.error(error));
-});
-
-app.get("/community/write", requireLogin, (req, res) => {
-  res.render("communitywrite",{title: "Community"});
-});
-
-app.post("/community/like/:id", async (req, res) => {
-  try {
-    const username = req.session.username;
-    if (!username) {
-      return res.json({ success: false, message: "Please log in." });
-    }
-    const post = await Post.findOne({ _id: req.params.id });
-    if (!post) {
-      return res.json({ success: false, message: "Post not found." });
-    }
-
-    post.likers = post.likers || [];
-
-    const alreadyLiked = post.likers.includes(username);
-
-
-    if (alreadyLiked) {
-
-      post.likers = post.likers.filter((liker) => liker !== username);
-    } else {
-
-      post.likers.push(username);
-    }
-
-    await post.save();
-    return res.json({ success: true, liked: !alreadyLiked });
-  } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: "An error occurred." });
-  }
-});
-
-
 app.get("/redeem", (req, res) => {
   // if (!req.session.authenticated) {
   //   res.redirect("/");
@@ -363,7 +258,57 @@ app.post("/loginSubmit", async (req, res) => {
 app.get('/nosql-injection', async (req, res) => {
   var name = req.query.user;
 
-//Sign Up and Sign Up Submit
+  if (!name) {
+    res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
+    return;
+  }
+  //console.log("user: "+name);
+
+  const schema = Joi.string().max(100).required();
+  const validationResult = schema.validate(name);
+
+  var invalid = false;
+  //If we didn't use Joi to validate and check for a valid URL parameter below
+  // we could run our userCollection.find and it would be possible to attack.
+  // A URL parameter of user[$ne]=name would get executed as a MongoDB command
+  // and may result in revealing information about all users or a successful
+  // login without knowing the correct password.
+  if (validationResult.error != null) {
+    invalid = true;
+    console.log(validationResult.error);
+    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    //    return;
+  }
+  var numRows = -1;
+  //var numRows2 = -1;
+  try {
+    const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
+    //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
+    //console.log(result);
+    numRows = result.length;
+    //numRows2 = result2.length;
+  }
+  catch (err) {
+    console.log(err);
+    res.send(`<h1>Error querying db</h1>`);
+    return;
+  }
+
+  console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
+
+  // var query = {
+  //     $where: "this.name === '" + req.body.username + "'"
+  // }
+
+  // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
+
+  // console.log(result2);
+
+  res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
+  //res.send(`<h1>Hello</h1>`);
+
+});
+
 app.get("/signup", (req, res) => {
   res.render("signup");
 });
@@ -391,12 +336,14 @@ app.post("/signupSubmit", async (req, res) => {
     req.session.cdKeys = cdKeys;
     return;
   }
-  
+
+
   var hashedPassword = await bcrypt.hash(password, saltRounds);
+
 
   await userCollection.insertOne({
     username: username,
-    password: hashedPassword,
+    password: password,
     email: email,
     phone: phone,
   });
@@ -424,13 +371,13 @@ function requireLogin(req, res, next) {
   }
 }
 
-app.get("/community", requireLogin, async (req, res) => {
+app.get("/community", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = 5;
   const skip = (page - 1) * pageSize;
 
   try {
-    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
+    const posts = await postCollection.find({}).sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
     const totalPosts = await postCollection.countDocuments();
     const totalPages = Math.ceil(totalPosts / pageSize);
 
@@ -447,7 +394,8 @@ app.get("/community/:postId/details", requireLogin, async (req, res) => {
 
   try {
     const post = await postCollection.findOne({ _id: postId });
-    res.render("post", { post: post, title: "Community" });
+    const likes = post && Array.isArray(post.likes) ? post.likes.length : 0;
+    res.render("post", { post: post, likes: likes, title: "Community" });
   } catch (err) {
     console.error(err);
     res.send("Error while fetching post details");
@@ -462,7 +410,7 @@ app.post("/community", async (req, res) => {
     content: req.body.content,
     date: new Date(),
     preview: req.body.content.split('\n').slice(0, 4).join('\n') + '...',
-    likes: [] // Make sure this line is there
+    likes: [] 
   };
 
   try {
@@ -474,13 +422,16 @@ app.post("/community", async (req, res) => {
   }
 });
 
-app.post("/community/write", function (req, res) {
-  const { title, author, content } = req.body;
+app.post("/community/write", async (req, res) => {
+  const { title, author, content, password } = req.body;
+
+  console.log(`Stored password: ${password}`); 
 
   const newPost = {
     title: title,
     author: author,
     content: content,
+    password: password,
     date: new Date(),
     preview: content.split('\n').slice(0, 4).join('\n') + '...'
   };
@@ -493,57 +444,68 @@ app.post("/community/write", function (req, res) {
     .catch(error => console.error(error));
 });
 
+
 app.get("/community/write", requireLogin, (req, res) => {
   res.render("communitywrite",{title: "Community"});
 });
 
-app.post("/community/like/:id", async (req, res) => {
+const PostSchema = mongoose.Schema({
+  author: String,
+  title: String,
+  content: String,
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
+  },
+});
+
+const Post = mongoose.model("Post", PostSchema);
+  
+  app.get("/community/:postId/like", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+  
+    try {
+    const post = await postCollection.findOne({ _id: postId });
+    const likes = post && Array.isArray(post.likes) ? post.likes.length : 0;
+    res.json({ success: true, likes: likes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error while fetching like count" });
+  }
+});
+  
+  
+app.post("/community/:postId/like", requireLogin, async (req, res) => {
+  const postId = new ObjectID(req.params.postId);
+  const userId = req.session.userId;
+  
   try {
-    const username = req.session.username;
-    if (!username) {
-      return res.json({ success: false, message: "Please log in." });
-    }
-    const post = await Post.findOne({ _id: req.params.id });
-    if (!post) {
-      return res.json({ success: false, message: "Post not found." });
-    }
+    const post = await postCollection.findOne({ _id: postId });
 
-    post.likers = post.likers || [];
+    let index = -1;
 
-    const alreadyLiked = post.likers.includes(username);
-
-
-    if (alreadyLiked) {
-
-      post.likers = post.likers.filter((liker) => liker !== username);
+    if (post && Array.isArray(post.likes)) {
+      index = post.likes.indexOf(userId);
     } else {
-
-      post.likers.push(username);
+      post.likes = [];
     }
+    
+        if (index > -1) {
+      post.likes.splice(index, 1);
+    } else {
+      post.likes.push(userId);
+    }
+    
+        await postCollection.updateOne({ _id: postId }, { $set: { likes: post.likes } });
 
-    await post.save();
-    return res.json({ success: true, liked: !alreadyLiked });
-  } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: "An error occurred." });
+    res.json({ success: true, likes: post.likes.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error while processing like" });
   }
 });
-
-app.get("/redeem", async (req, res) => {
-   if (!req.session.authenticated) {
-     res.redirect("/");
-     return;
-  }
-  res.render("redeem");
-  const user = await userCollection.findOne({ username: req.session.username });
-  if (!user || user.cdKeys.length === 0) {
-    res.status(400).send("No CD keys left");
-    return;
-  }
-  const cdKey = user.cdKeys.pop();
-  await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
-  res.json({ cdKey });
-});
+    
 
 
 //Warehouse page
@@ -678,14 +640,6 @@ app.get("/event", (req, res) => {
   res.render("event", { title: "Event" });
 });
 
-app.get("/profile", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("profile", {username: "test", email: "test@email.ca", phone: "(111) 111-1111", title: "Profile", image: "/img/steam_logo.png"});
-});
-
 app.post("/loginSubmit", async (req, res) => {
 
   var email = req.body.email;
@@ -767,29 +721,16 @@ app.get('/changePasswordForm', (req, res) => {
 
 
 app.post('/changePassword', async (req, res) => {
+
   try {
-    const username = req.session.username;
-    const newPassword = req.body.newPassword;
-
-    const user = await database.db(dbName).collection('users').findOne({ username });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await database.db(dbName).collection('users').updateOne(
-      { username },
-      { $set: { password: hashedPassword } }
-    );
-
-    res.status(200).json({ message: 'Password updated successfully' });
-  } catch (error) {
-    console.error('Error updating password:', error);
-    res.status(500).json({ error: 'Failed to update password. Try again.' });
+    const post = await postCollection.findOne({ _id: postId });
+    res.render("post", { post: post, likes: post.likes.length, title: "Community" });
+  } catch (err) {
+    console.error(err);
+    res.send("Error while fetching post details");
   }
 });
+
 
 const url = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`;
 
@@ -803,14 +744,6 @@ const options = {
 const client = new MongoClient(url, options);
 
 app.post('/upload', upload.single('file'), (req, res, next) => {
-  try {
-    console.log(req.file);
-    res.send('File uploaded successfully.');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while uploading the file.');
-  }
-});
 
 const image = "/path/to/image.jpg";
 const timestamp = Date.now(); 
@@ -819,28 +752,8 @@ const imageUrl = `${image}?t=${timestamp}`;
 
 const validImageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
 
-app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
-  try {
-    if (req.file) {
-      // Handle the uploaded image file
-      console.log('Profile image uploaded:', req.file.filename);
 
-      // Update the user's profile image path in the database
-      const username = req.session.username; // Replace with your own user identifier
-      const imagePath = `/uploads/${req.file.filename}`;
 
-      await userCollection.updateOne(
-        { username: username },
-        { $set: { image: imagePath } }
-      );
-
-      console.log('Profile image path updated in the database');
-
-      // Send a response indicating success and the updated image path
-      res.send(imagePath);
-    } else {
-      res.status(400).send('No file uploaded');
-    }
   } catch (error) {
     console.error('Error handling profile image upload:', error);
     res.status(500).send('Error handling profile image upload');
@@ -940,54 +853,6 @@ app.get('/gamedetails', (req, res) => {
     moreGameName: `${gamesJSONData[exampleID].name}`
   });
 
-
-});
-
-app.get("/searchresults", (req, res) => {
-  let search = req.query.search;
-  let capitalised = search.substring(0, 1).toUpperCase() + search.substring(1, search.length);
-  let allcaps = search.toUpperCase();
-  let result = -1;
-  let searchResult = "";
-  if ("Counter-Strike".includes("Counter")) {
-    console.log("Counter will return the game Counter Strike.");
-  } else {
-    console.log("Counter will not return the game Counter Strike");
-  }
-  if (search.length == 1) {
-    capitalised = search.toUpperCase();
-  }
-  for (i = 0; i < gamesJSONData.length; i++) {
-    if (gamesJSONData[i].name.includes(search) || gamesJSONData[i].name.includes(capitalised) || gamesJSONData[i].name.includes(allcaps)) {
-      result = i;
-      let storeLink = gamesJSONData[result].name.replace(" ", "_");
-      let total = gamesJSONData[result].positive + gamesJSONData[result].negative;
-      console.log(`localhost:3200/gamedetails?game_name=${gamesJSONData[result].name}&ratings=${(gamesJSONData[result].positive / total) * 100}&imageurl=${gamesJSONData[result].header_image}&desc='${gamesJSONData[result].short_description.replace("'", "%27")}'`);
-      searchResult += `
-      <div class='card'>
-        <p class='game-title'>${gamesJSONData[result].name}</p>
-        <img class='game-img' src=${gamesJSONData[result].header_image}>
-        <span class='desc'>${gamesJSONData[result].short_description}</span>
-        <p class='overall-rating'>${Math.round(((gamesJSONData[result].positive / total) * 100) * 100) / 100}% Positive Reviews</p>
-        <div class='links'>
-          <a href='https://store.steampowered.com/app/${gamesJSONData[result].appid}/${storeLink}' target=_blank>Store Page</a>
-          <br>
-          <a class='btn btn-primary detail-button' href='/gamedetails?game_ID=${gamesJSONData[result].appid}'>More Details</a>
-        </div>
-      </div>
-      `;
-    }
-  }
-  if (result <= -1) {
-    result = 0;
-  }
-  if (!req.session.authenticated) {
-    res.redirect("login");
-    return;
-  }
-  res.render("searchresults", { title: "Search Results", search_query: search, search_results: searchResult });
-});
-
 app.get("/logout", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
@@ -996,11 +861,6 @@ app.get("/logout", (req, res) => {
   res.render("logout");
 });
 
-app.get("/csvexample", (req, res) => {
-  let input = "Test";
-  let result = input;
-  res.render("csvexample", { search_query: result, title: "Test" });
-});
 
 app.get('/game', (req, res) => {
   fs.readFile(path.join(__dirname, "public/datasets/steam_games-part1.json"), 'UTF-8', (err, data) => {
@@ -1064,6 +924,7 @@ app.get('/api/game', (req, res) => {
       res.status(500).send("Internal Server Error");
     }
   });
+
 });
 
 app.listen(port, () => {

@@ -1,13 +1,26 @@
-const mongoose = require('mongoose');
+const express = require('express');
+const router = express.Router();
+const Post = require('../models/post');
 
-const PostSchema = new mongoose.Schema({
-  author: String,
-  title: String,
-  content: String,
-  likes: { type: Number, default: 0 }
+router.post('/', async (req, res) => {
+    try {
+        let obj;
+        
+        obj = {
+            writer: req.body.writer,
+            password: req.body.password,
+            title: req.body.title,
+            content: req.body.content
+        };
+
+        const post = new Post(obj);
+        await post.save();
+        res.json({message: "post uploaded"});
+
+    } catch (err) {
+        console.log(err);
+        res.json({message: false});
+    }
 });
 
-
-const Post = mongoose.model('Post', PostSchema);
-
-module.exports = Post;
+module.exports = router;
