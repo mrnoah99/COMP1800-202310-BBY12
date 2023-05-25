@@ -4,9 +4,8 @@
     align-items: center;
     justify-content: center;
     height: 85vh;
-    grid-gap: 5px;
-    border: 1px solid black;
-    background-color: #E5ECEC;
+    grid-gap: 1px;
+    padding-top: 50px;
     /* margin-top:10px; */
 }
 
@@ -29,7 +28,7 @@
 }
 
 .notifi {
-    background-color: #FCFDFD;
+    background-color: #E5ECEC;
 }
 
 .notifi a {
@@ -42,7 +41,7 @@
 }
 
 .security {
-    background-color: #FCFDFD;
+    background-color: #E5ECEC;
 }
 
 .security a {
@@ -55,7 +54,7 @@
 }
 
 .language {
-    background-color: #FCFDFD;
+    background-color: #E5ECEC;
 }
 
 .language a {

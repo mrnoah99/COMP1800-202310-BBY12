@@ -65,8 +65,6 @@ html, body {
     align-items: center;
 }
 
-
-
 #signin_title {
     color: #B7D7F6;
     font-family: 'Press Start 2P', cursive;
@@ -84,4 +82,5 @@ hr {
 
 #email {
     margin-top: 40px;
+
 }

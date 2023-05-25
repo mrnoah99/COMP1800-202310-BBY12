@@ -1,6 +1,8 @@
-<!-- community.ejs -->
 <%- include("templates/header") %>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <!-- <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"> -->
+
     <style>
         .card {
             transition: all 0.3s ease;
@@ -15,6 +17,7 @@
         }
     </style>
     <%- include("templates/navbar") %>
+
         <div class="container my-3">
             <% posts.forEach(function(post) { %>
                 <div class="card mb-3">
@@ -32,6 +35,7 @@
                                             hour: 'numeric' , minute: 'numeric' }) %>
                                     </p>
                                 </div>
+
                             </div>
                             <p class="border-bottom pb-2 mb-2">Author: <%= post.author %>
                             </p>
@@ -80,3 +84,4 @@
         <script src="/js/like.js"></script>
         <script src="/js/deletePost.js"></script>
         <%- include("templates/footer") %>
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <link rel="stylesheet" href="/css/game.css">
+</head>
+<body>
+  <%- include("templates/header") %>
+  <!-- whatever you need to link -->
+  <%- include("templates/navbar") %>
+  <button id="filter-btn">Filter</button>
+  <div id="filter-menu" style="display: none;">
+    <button id="all">ALL Games</button>
+    <button id="popular">Popular Games</button>
+    <button id="free">Free Games</button>
+    <button id="expensive">High to low price</button>
+    <button id="cheap">Low to high price</button>
+  </div>
+  
+
+  
+  <!-- Add page navigation -->
+  <div id="page-navigation">
+    <button id="prevPage">Prev Page</button>
+    <span id="pageNumber"></span> / <span id="totalPages"></span>
+    <button id="nextPage">Next Page</button>
+  </div>
+  
+  <div id="gameList"></div>
+  <%- include("templates/footer") %>
+
+  <script src="/js/game.js"></script>
+</body>
+</html>
+
+
