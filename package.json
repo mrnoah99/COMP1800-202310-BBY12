@@ -19,6 +19,7 @@
     "ejs": "^3.1.9",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
+<<<<<<< HEAD
     "formidable": "^2.1.1",
     "fs": "^0.0.1-security",
     "joi": "^17.9.2",
@@ -33,6 +34,15 @@
     "nodemailer": "^6.9.2",
     "nodemon": "^2.0.22",
     "path": "^0.12.7"
+=======
+    "fs": "^0.0.1-security",
+    "joi": "^17.9.2",
+    "mongodb": "^5.5.0",
+    "mongodb-connection-string-url": "^2.6.0",
+    "mongoose": "^7.1.0",
+    "nodemailer": "^6.9.2",
+    "nodemon": "^2.0.22"
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
   },
   "repository": {
     "type": "git",

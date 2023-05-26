@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,12 +12,23 @@
     <!-- whatever you need to link -->
     <%- include("templates/navbar") %>
 
+=======
+    <%- include("templates/header") %>
+    <link rel="stylesheet" href="/css/profile.css">
+    <%- include("templates/navbar") %>
+  <!-- Add a transparent button below navbar -->
+  <button id="secret-button" style="opacity: 0; position: fixed; right: 0;">Hidden Button</button>
+
+
+  <!-- Image overlay -->
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
   <div id="gif-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1000;">
     <img id="love-gif" src="/img/tong.gif" alt="Love GIF" style="width: 100%; height: 100%;">
   </div>
 
     <div class="profile-header">
 <!-- profile.ejs -->
+<<<<<<< HEAD
 <img id="profile-image" src="<%= image ? `${image}?t=${locals.timestamp}` : '/default-image.jpg' %>" alt="User Image">
 
 
@@ -32,6 +44,15 @@
         <% if (phone) { %>
           <p><%= phone %></p>
         <% } %>
+=======
+<img id="profile-image" src="<%= image %>" alt="User Image">
+
+
+      <div class="profile-info">
+          <h2><%= username %></h2>
+          <p><%= email %></p>
+          <p><%= phone %></p>
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
         <button id="edit-profile-picture-button">Edit Profile Picture</button>
         <button id="save-profile-picture-button">Save Profile Picture</button>
       </div>
@@ -40,9 +61,12 @@
       </div>
     </div>   
     </div>
+<<<<<<< HEAD
  
 
 
+=======
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
     <div class="profile-form">
       <form id="password-form" action="/changePassword" method="POST">
         <label for="password">New Password:</label>
@@ -55,11 +79,16 @@
         <button type="button">Cancel</button>
       </form>
     </div>
+<<<<<<< HEAD
     <%- include("templates/footer") %>
 
 
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+=======
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
     <script>
       $("#password-form").submit(function(e) {
         e.preventDefault();
@@ -87,7 +116,21 @@
         });
       });
     </script>
+<<<<<<< HEAD
     <script src="/js/profile.js"></script>
   </body>
 </html>
+=======
+
+      <script>
+        $("#secret-button").click(function() {
+          $("#gif-overlay").show();
+          setTimeout(function() {
+            $("#gif-overlay").hide();
+          }, 3000); // 3 seconds
+        });
+      </script>
+    <script src="/js/profile.js"></script>
+    <%- include("templates/footer") %>
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 

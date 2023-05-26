@@ -3,6 +3,7 @@ $('.like-button').on('click', function() {
   var liked = $(this).hasClass('liked'); // Check if the post is already liked
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     fetch(/community/${postId}/like, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -40,6 +41,8 @@ $(document).ready(function () {
     });
 })
 =======
+=======
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
   fetch(`/community/${postId}/like`, { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' },
@@ -59,4 +62,7 @@ $(document).ready(function () {
   })
   .catch((error) => console.error('Error:', error));
 });
+<<<<<<< HEAD
 >>>>>>> dev
+=======
+>>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
