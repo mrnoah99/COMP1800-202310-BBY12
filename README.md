@@ -20,7 +20,9 @@ In order to contribute to this project, you would need:
 
 Our app is designed to allow users to get information about games, recommendations based on their preferences, code for free games during events, and discuss with their communities, all in one convenient location.
 
+We have credited any outside sources in the files that use them.
+
 This project had one main criteria: Use AI in some form during development.
-So we did just that. Using ChatGPT, Seung-yeop, Eddie, and Sohee were able to debug on their own with more complicated errors, allowing Noah to get the more advanced stuff done. Noah also used ChatGPT, but only to help him to load the datasets' information correctly.
+So we did just that. Using ChatGPT, Seung-yeop, Eddie, and Sohee were able to debug on their own with more complicated errors, allowing Noah to get the more advanced stuff done. Noah also used ChatGPT, but only to help him to load the datasets' information correctly. The app itself did not integrate any AI, and we the only limitations we have encountered were that ChatGPT often just reads the error, tells you what it is, and gives you a generic solution.
 
 Contact information: nbaldwin3@my.bcit.ca
