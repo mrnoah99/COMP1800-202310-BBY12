@@ -61,9 +61,15 @@
     display: block;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 #card {
     background-color: #0572FC;
-    width: 100vw; 
+    width: 98vw; 
     height: 100vh;
     margin: 0; 
     display: flex;
@@ -83,4 +89,8 @@
 
 hr {
     color: whitesmoke;
+}
+
+#email {
+    margin-top: 40px;
 }

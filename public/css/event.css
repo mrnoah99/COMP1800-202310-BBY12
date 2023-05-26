@@ -137,7 +137,8 @@ html {
 }
 
 .cdk_warehouse img {
-    width: 10%;
+    height: 50px;
+    width: auto;
     margin-left: 5px;
 }
 
@@ -145,7 +146,5 @@ html {
     margin-right: 5px;
     border-radius: 25px;
 }
-
-
 
 
