@@ -8,3 +8,5 @@ package-lock.json
 /public/datasets/steam_games_test.json
 /public/datasets/steam_games.csv
 passwords.txt
+/build
+build.zip
