@@ -478,7 +478,7 @@ app.get('/gamedetails', (req, res) => {
     gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
   }
   let gameID = req.query.game_ID; // Gets an ID passed in from the game details links, and uses that to get the information from the datasets.
-  let resultIndex = 0;e
+  let resultIndex = 0;
   if (!req.query.game_ID) {
     gameID = 0;
   }
