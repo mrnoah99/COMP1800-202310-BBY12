@@ -4,14 +4,8 @@
     align-items: center;
     justify-content: center;
     height: 85vh;
-<<<<<<< HEAD
     grid-gap: 1px;
     padding-top: 50px;
-=======
-    grid-gap: 5px;
-    border: 1px solid black;
-    background-color: #E5ECEC;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
     /* margin-top:10px; */
 }
 
@@ -34,11 +28,7 @@
 }
 
 .notifi {
-<<<<<<< HEAD
     background-color: #E5ECEC;
-=======
-    background-color: #FCFDFD;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .notifi a {
@@ -51,11 +41,7 @@
 }
 
 .security {
-<<<<<<< HEAD
     background-color: #E5ECEC;
-=======
-    background-color: #FCFDFD;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .security a {
@@ -68,11 +54,7 @@
 }
 
 .language {
-<<<<<<< HEAD
     background-color: #E5ECEC;
-=======
-    background-color: #FCFDFD;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .language a {

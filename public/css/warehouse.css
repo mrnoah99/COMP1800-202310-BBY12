@@ -1,24 +1,11 @@
-<<<<<<< HEAD
-
-
-=======
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 .warehouse_container {
     font-family: 'Russo One', sans-serif;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-<<<<<<< HEAD
     height:80vh;
     grid-gap: 70px;
-=======
-    height: 85vh;
-    border: 1px solid black;
-    grid-gap: 50px;
-    width: 100%;
-    background-color: #E5ECEC;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .key1 {
@@ -31,11 +18,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-<<<<<<< HEAD
     background-color: #E5ECEC;
-=======
-    background-color: #FCFDFD;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .key1_name {
@@ -58,11 +41,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-<<<<<<< HEAD
     background-color: #E5ECEC;
-=======
-    background-color: #FCFDFD;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .key2_name {
@@ -86,11 +65,7 @@
     justify-content: center; 
     align-items: center; 
     position: relative; 
-<<<<<<< HEAD
     background-color: #E5ECEC;
-=======
-    background-color: #FCFDFD;
->>>>>>> f5892d793f8391f9e8dcb177fed00e9cc97f8185
 }
 
 .key3_name {

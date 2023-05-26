@@ -16,7 +16,7 @@ const bcrypt = require("bcrypt"); // Encrypts/hashes passwords when sent to the 
 const Joi = require("joi"); // Used to check usernames/passwords/emails to verify logins.
 
 // Sets a variable for accepting images for pfps, and one for getting IDs from Objects containing image data for the profile page, and data for the community page.
-const upload = multer({ dest: 'public/uploads/' });
+// const upload = multer({ dest: 'public/uploads/' }); // Doesn't work with hosting on cyclic.
 const ObjectID = mongoose.Types.ObjectId;
 
 // Number of hashes for the passwords and the port the app runs on.
@@ -402,15 +402,15 @@ const options = {
 const client = new MongoClient(url, options);
 
 // For uploading an image for a user profile picture.
-app.post('/upload', upload.single('file'), (req, res, next) => {
-  try {
-    console.log(req.file);
-    res.send('File uploaded successfully.');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while uploading the file.');
-  }
-});
+// app.post('/upload', upload.single('file'), (req, res, next) => {
+//   try {
+//     console.log(req.file);
+//     res.send('File uploaded successfully.');
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('An error occurred while uploading the file.');
+//   }
+// });
 
 const image = "/path/to/image.jpg";
 const timestamp = Date.now(); 
@@ -420,33 +420,33 @@ const imageUrl = `${image}?t=${timestamp}`;
 const validImageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
 
 // Updates the user profile in MongoDB.
-app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
-  try {
-    if (req.file) {
-      // Handle the uploaded image file
-      console.log('Profile image uploaded:', req.file.filename);
+// app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
+//   try {
+//     if (req.file) {
+//       // Handle the uploaded image file
+//       console.log('Profile image uploaded:', req.file.filename);
 
-      // Update the user's profile image path in the database
-      const username = req.session.username; // Replace with your own user identifier
-      const imagePath = `/uploads/${req.file.filename}`;
+//       // Update the user's profile image path in the database
+//       const username = req.session.username; // Replace with your own user identifier
+//       const imagePath = `/uploads/${req.file.filename}`;
 
-      await userCollection.updateOne(
-        { username: username },
-        { $set: { image: imagePath } }
-      );
+//       await userCollection.updateOne(
+//         { username: username },
+//         { $set: { image: imagePath } }
+//       );
 
-      console.log('Profile image path updated in the database');
+//       console.log('Profile image path updated in the database');
 
-      // Send a response indicating success and the updated image path
-      res.send(imagePath);
-    } else {
-      res.status(400).send('No file uploaded');
-    }
-  } catch (error) {
-    console.error('Error handling profile image upload:', error);
-    res.status(500).send('Error handling profile image upload');
-  }
-});
+//       // Send a response indicating success and the updated image path
+//       res.send(imagePath);
+//     } else {
+//       res.status(400).send('No file uploaded');
+//     }
+//   } catch (error) {
+//     console.error('Error handling profile image upload:', error);
+//     res.status(500).send('Error handling profile image upload');
+//   }
+// });
 
 // Notification settings page. Does not currently exist as I ran out of time to make it.
 app.get("/notif-settings", (req, res) => {
