@@ -43,11 +43,13 @@
 //       });
 
 function openHoverMenu(id) {
-  let frame = document.getElementById("popup");
-  frame.style = "display: inline;";
+  let frame = document.getElementById(id);
+  // frame.style = "display: inline;";
+  frame.classList.add("focused");
 }
 
 function closeHoverMenu(id) {
-  let frame = document.getElementById("popup");
-  frame.style = "display: none;";
+  let frame = document.getElementById(id);
+  // frame.style = "display: none;";
+  frame.classList.remove("focused");
 }

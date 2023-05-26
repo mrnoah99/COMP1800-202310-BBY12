@@ -2,7 +2,8 @@
 <link href="/css/searchresults.css" rel="stylesheet">
 <%- include("templates/navbar") %>
 <div id="container">
-    <input type="text" name="search" id="search-bar" value="<%= search_query %>">
+    <label for="search" id="search-label">Please remember to use proper capitalisation in your search query.</label>
+    <input type="text" name="search" id="search-bar" placeholder="Search: Please use proper capitalisation" value="<%= search_query %>">
     <button id="search-button" onclick="search()"><img src="/img/search_icon.png" id="search-icon"></button>
 </div>
 <div class="text-center">

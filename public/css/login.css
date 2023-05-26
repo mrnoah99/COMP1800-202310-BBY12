@@ -28,9 +28,21 @@
     align-items: center;
 }
 
+
+
+#email {
+    margin-top: 40px;
+}
+
+#login-button {
+    font-family: 'Press Start 2P', cursive;
+    margin-top: 35px;
+}
+
 #login-button {
     font-family: 'Press Start 2P', cursive;
 }
+
 
 #gotosignup-button {
     font-family: 'Press Start 2P', cursive;
@@ -49,8 +61,20 @@
     display: block;
 }
 
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 #card {
     background-color: #0572FC;
+    width: 98vw; 
+    height: 100vh;
+    margin: 0; 
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
 }
 
 #signin_title {
@@ -65,4 +89,8 @@
 
 hr {
     color: whitesmoke;
+}
+
+#email {
+    margin-top: 40px;
 }

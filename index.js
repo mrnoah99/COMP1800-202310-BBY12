@@ -1,35 +1,49 @@
-require("./utils.js");
+// Importing Node modules with require();
+require("./utils.js"); // Contains some global variables.
+require("dotenv").config(); // Used to access the .env file provided locally and by our hosting service.
+const express = require("express"); // Used with other Node modules to run the app. Listens on the port given and loads pages according to what is asked.
+const session = require("express-session"); // Contains session information and variables, to be used for authentication etc.
+const MongoStore = require("connect-mongo"); // Used to connect to the MongoDB.
+const MongoClient = require('mongodb').MongoClient; // Creates a client connected to the MongoDB, so that it can be edited.
+const formidable = require('formidable'); // Handles file uploads and sends them to mime and multer for saving.
+const multer = require('multer'); // Saves the files given to it to the server where needed.
+const mime = require('mime'); // Gets file extensions so we can tell what type of image file is being uploaded.
+const path = require("path"); // Used to set a global path variable.
+var { database } = require("./databaseConnection"); // Connects index.js functions to the MongoDB.
+const mongoose = require("mongoose"); // Used to send/receive data, and convert image files into data.
+const fs = require('fs'); // Used for reading txt and json files.
+const bcrypt = require("bcrypt"); // Encrypts/hashes passwords when sent to the server.
+const Joi = require("joi"); // Used to check usernames/passwords/emails to verify logins.
 
-require("dotenv").config();
-const express = require("express");
-const session = require("express-session");
-const MongoStore = require("connect-mongo");
-const MongoClient = require('mongodb').MongoClient;
-const formidable = require('formidable');
-const multer = require('multer');
-const path = require("path");
-const mime = require('mime');
-var { database } = require("./databaseConnection");
-const mongoose = require("mongoose");
+// Sets a variable for accepting images for pfps, and one for getting IDs from Objects containing image data for the profile page, and data for the community page.
+const upload = multer({ dest: 'public/uploads/' });
 const ObjectID = mongoose.Types.ObjectId;
 
-const upload = multer({ dest: 'public/uploads/' });
-
-const bcrypt = require("bcrypt");
+// Number of hashes for the passwords and the port the app runs on.
 const saltRounds = 12;
+const port = process.env.PORT || 3200;
+
+// The two variables used to store data from the steam game datasets.
 var gamesJSONData;
+var game1data;
+var game2data;
 
+// Variable that acts as the server, taking requests and handling them.
 const app = express();
-
-const Joi = require("joi");
-const { TextEncoder } = require("util");
-const expireTime = 24 * 60 * 60 * 1000;
 
 // Configuring the view engine for an Express.js application to be EJS
 app.set('view engine', 'ejs');
+
+// Sets a static path for all of index.js to use for finding files.
 app.use(express.static("public"));
 
-/* secret information section */
+// Connects the database. Again, because apparently we need two of them.
+var { database } = include("databaseConnection");
+
+// Sets the time that a user can remain logged in to 24hrs, which forces them to log back in after this duration.
+const expireTime = 24 * 60 * 60 * 1000;
+
+// secret information section
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
@@ -37,17 +51,18 @@ const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
 
 const node_session_secret = process.env.NODE_SESSION_SECRET;
-/* END secret section */
 
-var { database } = include("databaseConnection");
-
+// Constants for the user and posts collections in the database, used to track community posts and their content, as well as the users as they log in or sign up.
 const userCollection = database.db(mongodb_database).collection("users");
 const postCollection = database.db(mongodb_database).collection("posts");
 
-const port = process.env.PORT || 3200;
+// The url used to link to the MongoDB.
+const url = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`;
 
+// Tells express to use the MongoDB url.
 app.use(express.urlencoded({ extended: false }));
 
+// Variable for storing information to the MongoDB.
 var mongoStore = MongoStore.create({
 
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`,
@@ -56,40 +71,57 @@ var mongoStore = MongoStore.create({
   }
 })
 
+// Sets variables for the server.
 app.use(session({
-  secret: node_session_secret,
-  store: mongoStore, //default is memory store 
-  saveUninitialized: false,
-  resave: true
+  secret: node_session_secret, // Secret variable used for hosting the server.
+  store: mongoStore, //default is memory store .
+  saveUninitialized: false, // Tells Node to disallow saving information when the next page isn't yet initialised?
+  resave: true // I actually don't remember what this one does.
 }
 ));
 
-// Gets the 55,000 games dataset loaded into a variable accessible by the rest of index.js
-const fs = require("fs");
-fs.readFile("public/datasets/steam_games_test.json", 'UTF-8', (err, data) => {
+// Gets the 55,000 games dataset loaded into two variables accessible by the rest of index.js
+fs.readFile("public/datasets/steam_games-part1.json", 'UTF-8', (err, data) => {
   if (err) {
     console.error("Error reading file: ", err);
     return;
   }
 
   try {
-    gamesJSONData = JSON.parse(data);
-    console.log("All games:\n" + gamesJSONData);
+    game1data = JSON.parse(data);
   } catch (error) {
     console.error("Error parsing JSON: ", error);
   }
 });
 
-app.get("/", (req, res) => {
-  if (!req.session.authenticated) {
-    const errorMsg = req.query.errorMsg;
-    console.log(errorMsg)
-    res.redirect("/login");
-  } else {
-    res.render("index", { title: "Home Page" });
+fs.readFile("public/datasets/steam_games-part2.json", 'UTF-8', (err, data) => {
+  if (err) {
+    console.error("Error reading file: ", err);
+    return;
+  }
+
+  try {
+    game2data = JSON.parse(data);
+  } catch (error) {
+    console.error("Error parsing JSON: ", error);
   }
 });
 
+// Home page of the app. The login page and some others redirect here when the session is already logged in.
+app.get("/", (req, res) => {
+  if (!req.session.authenticated) {
+    const errorMsg = req.query.errorMsg;
+    console.error("Invalid session, please login.", errorMsg);
+    res.redirect("/login");
+  } else {
+    res.render("index", {title: "Home Page", user: req.session.username});
+  }
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+});
+
+// Login page, has inputs for the user to pass in their email and password to log in.
 app.get("/login", (req, res) => {
   if (!req.session.authenticated) {
     const errorMsg = req.query.errorMsg;
@@ -99,6 +131,7 @@ app.get("/login", (req, res) => {
   }
 });
 
+// Processes the login request from the user.
 app.post("/loginSubmit", async (req, res) => {
 
   var email = req.body.email;
@@ -111,21 +144,19 @@ app.post("/loginSubmit", async (req, res) => {
 
   const validationResult = schema.validate({ email, password });
   if (validationResult.error != null) {
-    console.log(validationResult.error);
+    console.error("Invalid login: Incorrect email/password combination", validationResult.error);
     res.redirect("/login");
     return;
   }
 
   const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
 
-  console.log(result);
   if (result.length != 1) {
-    console.log("User is not found...");
+    console.error("User is not found...");
     res.redirect("/login");
     return;
   }
   if (await bcrypt.compare(password, result[0].password)) {
-    console.log("right password");
 
     req.session.authenticated = true;
     req.session.username = result[0].username;
@@ -134,144 +165,38 @@ app.post("/loginSubmit", async (req, res) => {
     res.redirect("/");
     return;
   } else {
-    console.log("wrong password");
+    console.error("Incorrect password");
     res.redirect("/login?errorMsg=Invalid email/password combination.");
     return;
   }
 });
 
-app.get('/nosql-injection', async (req, res) => {
-  var name = req.query.user;
-
-  if (!name) {
-    res.send(`<h3>no user provided - try /nosql-injection?user=name</h3> <h3>or /nosql-injection?user[$ne]=name</h3>`);
-    return;
-  }
-  //console.log("user: "+name);
-
-  const schema = Joi.string().max(100).required();
-  const validationResult = schema.validate(name);
-
-  var invalid = false;
-  //If we didn't use Joi to validate and check for a valid URL parameter below
-  // we could run our userCollection.find and it would be possible to attack.
-  // A URL parameter of user[$ne]=name would get executed as a MongoDB command
-  // and may result in revealing information about all users or a successful
-  // login without knowing the correct password.
-  if (validationResult.error != null) {
-    invalid = true;
-    console.log(validationResult.error);
-    //    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
-    //    return;
-  }
-  var numRows = -1;
-  //var numRows2 = -1;
-  try {
-    const result = await userCollection.find({ name: name }).project({ username: 1, password: 1, _id: 1 }).toArray();
-    //const result2 = await userCollection.find("{name: "+name).project({username: 1, password: 1, _id: 1}).toArray(); //mongoDB already prevents using catenated strings like this
-    //console.log(result);
-    numRows = result.length;
-    //numRows2 = result2.length;
-  }
-  catch (err) {
-    console.log(err);
-    res.send(`<h1>Error querying db</h1>`);
-    return;
-  }
-
-  console.log(`invalid: ${invalid} - numRows: ${numRows} - user: `, name);
-
-  // var query = {
-  //     $where: "this.name === '" + req.body.username + "'"
-  // }
-
-  // const result2 = await userCollection.find(query).toArray(); //$where queries are not allowed.
-
-  // console.log(result2);
-
-  res.send(`<h1>Hello</h1> <h3> num rows: ${numRows}</h3>`);
-  //res.send(`<h1>Hello</h1>`);
-
-});
-
-app.get("/signup", (req, res) => {
-  res.render("signup");
-});
-
-let remainingQuantity = 10;
-
-app.post("/signupSubmit", async (req, res) => {
-  var username = req.body.username;
-  var password = req.body.password;
-  var email = req.body.email;
-  var phone = req.body.phone;
-
-  const schema = Joi.object({
-    username: Joi.string().alphanum().max(20).required(),
-    password: Joi.string().max(20).required(),
-    email: Joi.string().email().required(),
-    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
-  });
-
-  const validationResult = schema.validate({ username, email, password, phone });
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
-    res.redirect("/signup");
-    req.session.cdKeys = cdKeys;
-    return;
-  }
-
-  var hashedPassword = await bcrypt.hash(password, saltRounds);
-
-  await userCollection.insertOne({
-    username: username,
-    password: hashedPassword,
-    email: email,
-    phone: phone,
-  });
-  console.log("User has been inserted");
-
-  req.session.authenticated = true;
-  req.session.username = username;
-  req.session.remainingQuantity = 10
-  req.session.remainingQuantity = remainingQuantity;
-  res.redirect("/event");
-});
-
-app.post("/getCDKey", async (req, res) => {
-  if (!req.session.authenticated) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-});
-
-function requireLogin(req, res, next) {
-  if (!req.session.authenticated) {
-    res.redirect("/login");
-  } else {
-    next();
-  }
-}
-
-app.get("/community", requireLogin, async (req, res) => {
+// Community page, contains user posts and the option to create a post.
+app.get("/community", async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = 5;
   const skip = (page - 1) * pageSize;
 
   try {
-    const posts = await postCollection.find().sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
+    const posts = await postCollection.find({}).sort({ date: -1 }).skip(skip).limit(pageSize).toArray();
     const totalPosts = await postCollection.countDocuments();
     const totalPages = Math.ceil(totalPosts / pageSize);
 
     res.render("community", { posts: posts, totalPages: totalPages, currentPage: page, title: "Community" });
   } catch (err) {
-    console.log(err);
     console.error(err);
     res.send("Error while fetching posts");
   }
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-app.get("/community/:postId/details", requireLogin, async (req, res) => {
+// Loads a community post from an ID.
+app.get("/community/:postId/details", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  }
   const postId = new ObjectID(req.params.postId);
 
   try {
@@ -281,9 +206,12 @@ app.get("/community/:postId/details", requireLogin, async (req, res) => {
     console.error(err);
     res.send("Error while fetching post details");
   }
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-
+// For posting on the community page.
 app.post("/community", async (req, res) => {
   const newPost = {
     author: req.body.author,
@@ -298,11 +226,12 @@ app.post("/community", async (req, res) => {
     await postCollection.insertOne(newPost);
     res.redirect("/community");
   } catch (err) {
-    console.log(err);
+    console.error(err);
     res.send("Error while inserting post");
   }
 });
 
+// For posting on the community page.
 app.post("/community/write", function (req, res) {
   const { title, author, content } = req.body;
 
@@ -322,48 +251,490 @@ app.post("/community/write", function (req, res) {
     .catch(error => console.error(error));
 });
 
-app.get("/community/write", requireLogin, (req, res) => {
+app.get("/community/write", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  }
   res.render("communitywrite",{title: "Community"});
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-app.post("/community/like/:id", async (req, res) => {
+const PostSchema = mongoose.Schema({
+  author: String,
+  title: String,
+  content: String,
+  likes: {
+    type: [mongoose.Schema.Types.ObjectId],
+    ref: "User",
+    default: [],
+  },
+});
+
+const Post = mongoose.model("Post", PostSchema);
+
+// Loads the number of likes for a community post.
+app.get("/community/:postId/like", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  }
+  const postId = new ObjectID(req.params.postId);
+
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+    res.json({ success: true, likes: post.likes.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error while fetching like count" });
+  }
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+});
+
+// Changes the number of likes for a community post.
+app.post("/community/:postId/like", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+  }
+  const postId = new ObjectID(req.params.postId);
+  const userId = req.session.userId;
+
+  try {
+    const post = await postCollection.findOne({ _id: postId });
+
+    let index = -1;
+    if (post.likes) {
+      index = post.likes.indexOf(userId);
+    } else {
+      post.likes = [];
+    }
+
+    if (index > -1) {
+
+      post.likes.splice(index, 1);
+    } else {
+      
+      post.likes.push(userId);
+    }
+
+    await postCollection.updateOne({ _id: postId }, { $set: { likes: post.likes } });
+
+    res.json({ success: true, likes: post.likes.length });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Error while processing like" });
+  }
+});
+
+// Redirects to '/' if you go here.
+app.get("/index", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/login");
+    return;
+  } else {
+    res.redirect("/");
+    return;
+  }
+});
+
+// Profile page, where the user can change their password and profile picture.
+app.get('/profile', async (req, res) => {
+  try {
+    const user = await database.db('COMP2800-BBY-12').collection('users').findOne({ username: req.session.username });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const { username, email, phone, image } = user; 
+
+    res.render('profile', { username, email, phone, image, title: 'Profile' });
+
+  } catch (error) {
+    console.error("Error looking up user: ", error);
+    res.status(500).json({ error: "User lookup failed." });
+  }
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+});
+
+const dbName = 'COMP2800-BBY-12';
+
+// Goes to the page where a user can change their password to restore their account if they forget.
+app.get('/changePasswordForm', (req, res) => {
+  res.render('changePassword'); 
+});
+
+// Changes the password of the user.
+app.post('/changePassword', async (req, res) => {
   try {
     const username = req.session.username;
-    if (!username) {
-      return res.json({ success: false, message: "Please log in." });
-    }
-    const post = await Post.findOne({ _id: req.params.id });
-    if (!post) {
-      return res.json({ success: false, message: "Post not found." });
-    }
+    const newPassword = req.body.newPassword;
 
-    post.likers = post.likers || [];
+    const user = await database.db(dbName).collection('users').findOne({ username });
 
-    const alreadyLiked = post.likers.includes(username);
-
-
-    if (alreadyLiked) {
-
-      post.likers = post.likers.filter((liker) => liker !== username);
-    } else {
-
-      post.likers.push(username);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
 
-    await post.save();
-    return res.json({ success: true, liked: !alreadyLiked });
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await database.db(dbName).collection('users').updateOne(
+      { username },
+      { $set: { password: hashedPassword } }
+    );
+
+    res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
-    console.error(error);
-    return res.json({ success: false, message: "An error occurred." });
+    console.error('Error updating password:', error);
+    res.status(500).json({ error: 'Failed to update password. Try again.' });
   }
 });
 
-app.get("/redeem", async (req, res) => {
-   if (!req.session.authenticated) {
-     res.redirect("/");
-     return;
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+};
+
+const client = new MongoClient(url, options);
+
+// For uploading an image for a user profile picture.
+app.post('/upload', upload.single('file'), (req, res, next) => {
+  try {
+    console.log(req.file);
+    res.send('File uploaded successfully.');
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while uploading the file.');
   }
-  res.render("redeem");
+});
+
+const image = "/path/to/image.jpg";
+const timestamp = Date.now(); 
+
+const imageUrl = `${image}?t=${timestamp}`;
+
+const validImageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
+
+// Updates the user profile in MongoDB.
+app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
+  try {
+    if (req.file) {
+      // Handle the uploaded image file
+      console.log('Profile image uploaded:', req.file.filename);
+
+      // Update the user's profile image path in the database
+      const username = req.session.username; // Replace with your own user identifier
+      const imagePath = `/uploads/${req.file.filename}`;
+
+      await userCollection.updateOne(
+        { username: username },
+        { $set: { image: imagePath } }
+      );
+
+      console.log('Profile image path updated in the database');
+
+      // Send a response indicating success and the updated image path
+      res.send(imagePath);
+    } else {
+      res.status(400).send('No file uploaded');
+    }
+  } catch (error) {
+    console.error('Error handling profile image upload:', error);
+    res.status(500).send('Error handling profile image upload');
+  }
+});
+
+// Notification settings page. Does not currently exist as I ran out of time to make it.
+app.get("/notif-settings", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("notif-settings");
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+});
+
+// Security settings page. Does not currently exist for the same reason as above.
+app.get("/sec-settings", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+  res.render("sec-settings");
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+});
+
+// Details for a game page. Has a hardcoded "more games like it" part but everything else uses the datasets.
+app.get('/gamedetails', (req, res) => {
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+  let gameID = req.query.game_ID; // Gets an ID passed in from the game details links, and uses that to get the information from the datasets.
+  let resultIndex = 0;e
+  if (!req.query.game_ID) {
+    gameID = 0;
+  }
+  for (let i = 0; i < gamesJSONData.length; i++) {
+    if (gamesJSONData[i].appid == gameID) {
+      resultIndex = i;
+      break;
+    }
+  }
+  let game = gamesJSONData[resultIndex];
+  let gameName = game.name;
+  let gameRating = Math.round((game.positive / (game.positive + game.negative)) * 10000) / 100;
+  let gameDescription = game.short_description;
+  let gameImage = game.header_image;
+  let months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  let releaseDate = `${game.release_date} (${months[parseInt(game.release_date.substring(5, 7)) - 1]} ${game.release_date.substring(8, game.release_date.length)}, ${game.release_date.substring(0, 4)})`;
+  let age = game.required_age;
+  let price = `${game.price.substring(0, (game.price.length-2))}.${game.price.substring((game.price.length-2), game.price.length)}`;
+  let platforms = "";
+  if (game.platforms.windows == true) {
+    platforms = 'Windows';
+  }
+  if (game.platforms.mac == true && game.platforms.windows == true) {
+    platforms = 'Windows, Mac';
+  } else if (game.platforms.mac == true) {
+    platforms = 'Mac'
+  }
+  if (game.platforms.linux == true && game.platforms.mac == true && game.platforms.windows == true) {
+    platforms = 'Windows, Mac, Linux';
+  } else if (game.platforms.linux == true && game.platforms.mac == true) {
+    platforms = 'Mac, Linux';
+  } else if (game.platforms.linux == true && game.platforms.windows == true) {
+    platforms = 'Windows, Linux';
+  }
+  if (game.platforms.linux == false && game.platforms.mac == false && game.platforms.windows == false) {
+    platforms = "Nothing, apparently";
+  }
+  let languages = game.languages;
+  let categories = "";
+  for (i = 0; i < game.categories.length; i++) {
+    categories += `${game.categories[i]}, `;
+  }
+  let tags = "";
+  for (i = 0; i < Object.keys(game.tags).length; i++) {
+    tags += `${Object.keys(game.tags)[i]}: ${Object.values(game.tags)[i]}, `;
+  }
+  let app1 = `<a href='/gamedetails?game_ID=${gamesJSONData[0].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[0].appid})' onmouseenter='openHoverMenu(${gamesJSONData[0].appid})' src='${gamesJSONData[0].header_image}'></a><span id='${gamesJSONData[0].appid}' class="popup">${gamesJSONData[0].name}<br><span class="popupDesc">${gamesJSONData[0].short_description.substring(0, 200)}...</span></span>`;
+  let app2 = `<a href='/gamedetails?game_ID=${gamesJSONData[1].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[1].appid})' onmouseenter='openHoverMenu(${gamesJSONData[1].appid})' src='${gamesJSONData[1].header_image}'></a><span id='${gamesJSONData[1].appid}' class="popup">${gamesJSONData[1].name}<br><span class="popupDesc">${gamesJSONData[1].short_description.substring(0, 200)}...</span></span>`;
+  let app3 = `<a href='/gamedetails?game_ID=${gamesJSONData[2].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[2].appid})' onmouseenter='openHoverMenu(${gamesJSONData[2].appid})' src='${gamesJSONData[2].header_image}'></a><span id='${gamesJSONData[2].appid}' class="popup">${gamesJSONData[2].name}<br><span class="popupDesc">${gamesJSONData[2].short_description.substring(0, 200)}...</span></span>`;
+  let app4 = `<a href='/gamedetails?game_ID=${gamesJSONData[3].appid}'><img class='moregame' onmouseleave='closeHoverMenu(${gamesJSONData[3].appid})' onmouseenter='openHoverMenu(${gamesJSONData[3].appid})' src='${gamesJSONData[3].header_image}'></a><span id='${gamesJSONData[3].appid}' class="popup">${gamesJSONData[3].name}<br><span class="popupDesc">${gamesJSONData[3].short_description.substring(0, 200)}...</span></span>`;
+  let similarGames = `${app1}${app2}${app3}${app4}`; // 실제 유사한 게임 목록으로 대체해야 합니다.
+
+  res.render('gamedetail', {
+    gameName: gameName, gameRating: gameRating, gameDescription: gameDescription,
+    gameImage: gameImage, similarGames: similarGames, title: `${gameName} Details`,
+    storeLink: `https://store.steampowered.com/app/${game.appid}/${game.name.replace(" ", "_")}`,
+    categories: categories, languages: languages, platforms: platforms, price: price,
+    tags: tags, releaseDate: releaseDate, age: age
+  });
+
+
+});
+
+// Search results from the home page. Searches to see if any of the game titles match the search query, and loads them.
+app.get("/searchresults", (req, res) => {
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+  let search = req.query.search;
+  let allcaps = search.toUpperCase();
+  let result = -1;
+  let searchResult = "";
+  for (i = 0; i < gamesJSONData.length; i++) {
+    if (gamesJSONData[i].name.includes(search) || gamesJSONData[i].name.includes(allcaps)) {
+      result = i;
+      let storeLink = gamesJSONData[result].name.replace(" ", "_");
+      let total = gamesJSONData[result].positive + gamesJSONData[result].negative;
+      searchResult += `
+      <div class='card'>
+        <p class='game-title'>${gamesJSONData[result].name}</p>
+        <img class='game-img' src=${gamesJSONData[result].header_image}>
+        <span class='desc'>${gamesJSONData[result].short_description}</span>
+        <p class='overall-rating'>${Math.round(((gamesJSONData[result].positive / total) * 100) * 100) / 100}% Positive Reviews</p>
+        <div class='links'>
+          <a href='https://store.steampowered.com/app/${gamesJSONData[result].appid}/${storeLink}' target=_blank>Store Page</a>
+          <br>
+          <a class='btn btn-primary detail-button' href='/gamedetails?game_ID=${gamesJSONData[result].appid}'>More Details</a>
+        </div>
+      </div>
+      `;
+    }
+  }
+  if (result <= -1) {
+    result = 0;
+  }
+  if (!req.session.authenticated) {
+    res.redirect("login");
+    return;
+  }
+  res.render("searchresults", { title: "Search Results", search_query: search, search_results: searchResult });
+});
+
+// Logs the user out.
+app.get("/logout", (req, res) => {
+  if (!req.session.authenticated) {
+    res.redirect("/");
+    return;
+  }
+
+  // Destroy the session and redirect the user
+  req.session.destroy(err => {
+    if(err) {
+      console.log(err);
+      res.redirect('/error');
+    }
+    else {
+      res.redirect("/");
+    }
+  });
+});
+
+// Just an example to practise with using .csv dataset files. Not used for anything.
+app.get("/csvexample", (req, res) => {
+  let input = "Test";
+  let result = input;
+  res.render("csvexample", { search_query: result, title: "Test" });
+});
+
+// Recommended/Popular/Free games pages all combined into one.
+app.get('/game', (req, res) => {
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+  fs.readFile(path.join(__dirname, "public/datasets/steam_games-part1.json"), 'UTF-8', (err, data) => {
+    if (err) {
+      console.error("Error reading file: ", err);
+      res.status(500).send("Internal Server Error");
+      return;
+    }
+
+    try {
+      let testData = JSON.parse(data);
+      res.render('game', { games: testData, title: 'Game Page' });
+    } catch (error) {
+      console.error("Error parsing JSON: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
+// Sets pages for the games page.
+app.get('/api/game', (req, res) => {
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
+  fs.readFile(path.join(__dirname, "public/datasets/steam_games-part1.json"), 'UTF-8', (err, data) => {
+    
+
+    try {
+      let testData = JSON.parse(data);
+      let gamesArray = Object.values(testData);
+      
+      if (req.query.free === 'true') {
+        gamesArray = gamesArray.filter(game => game.price === 0 || game.price === "0");
+      }
+
+      if (req.query.popular === 'true') {
+        gamesArray = gamesArray.sort((a, b) => {
+          const maxOwnersA = Math.max(...a.owners.match(/\d+/g).map(Number));
+          const maxOwnersB = Math.max(...b.owners.match(/\d+/g).map(Number));
+          return maxOwnersB - maxOwnersA;
+        });
+      }
+      if (req.query.sortPrice === 'desc') {
+        gamesArray = gamesArray.sort((a, b) => b.price - a.price);
+      }
+      else if (req.query.sortPrice === 'asc') {
+        gamesArray = gamesArray.sort((a, b) => a.price - b.price);
+      }
+      
+      
+      let page = req.query.page ? parseInt(req.query.page) : 1;
+      let pageSize = req.query.pageSize ? parseInt(req.query.pageSize) : 10;
+      let offset = (page - 1) * pageSize;
+      let paginatedItems = gamesArray.slice(offset, offset + pageSize);
+
+      res.json({ 
+        page: page,
+        perPage: pageSize,
+        total: gamesArray.length,
+        totalPages: Math.ceil(gamesArray.length / pageSize),
+        data: paginatedItems
+      });
+    } catch (error) {
+      console.error("Error parsing JSON: ", error);
+      res.status(500).send("Internal Server Error");
+    }
+  });
+});
+
+// Read and parse cdk.txt
+let cdkKeys = fs.readFileSync(path.join(__dirname, 'cdk.txt'), 'utf8').split('\n').filter(key => key);
+
+// Where the user can sign up and create an account.
+app.get("/signup", (req, res) => {
+  res.render("signup");
+});
+
+let remainingQuantity = 10;
+
+// Sends sign up details to the MongoDB to register the new user, and redirects to the home page.
+app.post("/signupSubmit", async (req, res) => {
+  var username = req.body.username;
+  var password = req.body.password;
+  var email = req.body.email;
+  var phone = req.body.phone;
+
+  const schema = Joi.object({
+    username: Joi.string().alphanum().max(20).required(),
+    password: Joi.string().max(20).required(),
+    email: Joi.string().email().required(),
+    phone: Joi.string().pattern(/^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/).required(),
+  });
+
+  const validationResult = schema.validate({ username, email, password, phone });
+  if (validationResult.error != null) {
+    console.error(validationResult.error);
+    res.redirect("/signup");
+    req.session.cdKeys = cdKeys;
+    return;
+  }
+  
+  var hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  await userCollection.insertOne({
+    username: username,
+    password: hashedPassword,
+    email: email,
+    phone: phone,
+  });
+  console.log("User has been inserted");
+
+  req.session.authenticated = true;
+  req.session.username = username;
+  req.session.remainingQuantity = 10
+  req.session.remainingQuantity = remainingQuantity;
+  res.redirect("/");
+});
+
+// Gets a random CDKey from cdk.txt to use for the redeem page.
+app.post("/getCDKey", async (req, res) => {
+  if (!req.session.authenticated) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
+
   const user = await userCollection.findOne({ username: req.session.username });
   if (!user || user.cdKeys.length === 0) {
     res.status(400).send("No CD keys left");
@@ -372,43 +743,49 @@ app.get("/redeem", async (req, res) => {
   const cdKey = user.cdKeys.pop();
   await userCollection.updateOne({ username: req.session.username }, { $set: { cdKeys: user.cdKeys } });
   res.json({ cdKey });
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-//Warehouse page
-// app.get("/warehouse", (req, res) => {
-//   if (!req.session.authenticated) {
-//     res.redirect("/");
-//     return;
-//   }
-//   res.render("warehouse");
-// });
-
+// Warehouse page, which stores all of the CD Keys that the user has redeemed.
 app.get("/warehouse", async (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
   }
   const user = await userCollection.findOne({ username: req.session.username });
-  res.render("warehouse", { title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
+  res.render("warehouse" ,{ title: "Warehouse", redeemedKey: user.redeemedKey || "No key redeemed yet" });
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-//Redeem Page and Functionality
+// Page for redeeming CD Keys, which adds them to both the clipboard and the warehouse page.
 app.get("/redeem", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
   }
-  res.render("redeem", {title: "Redeem"})
+  res.render("redeem", {title: "Redeem"});
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
+// Gets the remaining number of CD Keys for a specific game event.
 app.get("/getRemainingQuantity", (req, res) => {
   if (!req.session.authenticated) {
     res.status(401).send("Unauthorized");
     return;
   }
   res.json({ remainingQuantity: remainingQuantity });
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
+// Updates the remaining number of CD Keys for a specific game event.
 app.post("/updateRemainingQuantity", (req, res) => {
   if (!req.session.authenticated) {
     res.status(401).send("Unauthorized");
@@ -416,20 +793,12 @@ app.post("/updateRemainingQuantity", (req, res) => {
   }
   req.session.remainingQuantity -= 1;
   res.json({ remainingQuantity: req.session.remainingQuantity });
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-// app.post("/resetRemainingQuantity", (req, res) => {
-//   if (!req.session.authenticated) {
-//     res.status(401).send("Unauthorized");
-//     return;
-//   }
-//   remainingQuantity = 10;
-//   res.json({ remainingQuantity: remainingQuantity });
-// });
-
-// Read and parse cdk.txt
-let cdkKeys = fs.readFileSync(path.join(__dirname, 'cdk.txt'), 'utf8').split('\n').filter(key => key);
-
+// Redeems a CD Key for the user, by randomly selecting one from cdk.txt.
 app.get("/redeemKey", async (req, res) => {
   if (!req.session.authenticated) {
     res.status(401).send("Unauthorized");
@@ -466,731 +835,42 @@ app.get("/redeemKey", async (req, res) => {
 
   // Respond with the redeemed key
   res.json({ cdKey: redeemedKey, remainingQuantity: remainingQuantity });
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
+  }
 });
 
-//Event Page
+// Events page, which has all events for games that we have.
 app.get("/event", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
   }
-  res.render("event", {title: "Event"})
-});
-
-//Setting Page
-app.get("/setting", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("setting", {title: "Setting"})
-});
-
-app.get("/index", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/login");
-    return;
-  }
-
-  res.render("index", { username: req.session.username, title: "Home Page" });
-});
-
-app.get("/event", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("event", { title: "Event" });
-});
-
-app.get("/profile", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("profile", {username: "test", email: "test@email.ca", phone: "(111) 111-1111", title: "Profile", image: "/img/steam_logo.png"});
-});
-
-app.post("/loginSubmit", async (req, res) => {
-
-  var email = req.body.email;
-  var password = req.body.password;
-
-  const schema = Joi.object({
-    email: Joi.string().email().required(),
-    password: Joi.string().max(20).required(),
-  });
-
-  const validationResult = schema.validate({ email, password });
-  if (validationResult.error != null) {
-    console.log(validationResult.error);
-    res.redirect("/login");
-    return;
-  }
-
-  const result = await userCollection.find({ email: email }).project({ email: 1, password: 1, _id: 1, username: 1 }).toArray();
-
-  console.log(result);
-  if (result.length != 1) {
-    console.log("User is not found...");
-    res.redirect("/login");
-    return;
-  }
-  if (await bcrypt.compare(password, result[0].password)) {
-    console.log("right password");
-
-    req.session.authenticated = true;
-    req.session.username = result[0].username;
-    req.session.cookie.maxAge = expireTime;
-
-    res.redirect("/event");
-    return;
-  } else {
-    console.log("wrong password");
-    res.redirect("/login?errorMsg=Invalid email/password combination.");
-    return;
-  }
-  res.render("pricecompare");
-});
-//sohee parts
-
-// app.get('/games/:gameTemplate', (req, res) => {
-//   // req.params.gameTemplate을 사용해서 게임 데이터를 로드하고 렌더링
-// });
-
-app.get('/popular', (req, res) => {
-  // popular.html 파일을 렌더링할 때 필요한 데이터
-  const games = [
-    {
-      name: 'Minecraft',
-      template: 'minecraft',
-      image: 'https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_cover.png',
-      genre: 'Open world, Action game, Sandbox',
-    },
-    {
-      name: 'Grand Theft Auto V',
-      template: 'gta',
-      image: 'https://upload.wikimedia.org/wikipedia/en/a/a5/Grand_Theft_Auto_V.png',
-      genre: 'Action-adventure game, Racing video game',
-    },
-    {
-      name: 'Fortnite',
-      template: 'fortnite',
-      image: 'https://imgix.ranker.com/user_node_img/3837/76737071/original/76737071-photo-u8?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300',
-      genre: 'Survival, battle royale, sandbox',
-    },
-    {
-      name: 'Super Smash Bros. Ultimate',
-      template: 'sss',
-      image: 'https://imgix.ranker.com/user_node_img/4269/85375035/original/super-smash-bros-ultimate-photo-u2?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300',
-      genre: 'Fighting',
-    },
-    {
-      name: 'Red Dead Redemption II',
-      template: 'reddead',
-      image: 'https://upload.wikimedia.org/wikipedia/en/4/44/Red_Dead_Redemption_II.jpg',
-      genre: 'Action-adventure',
-    },
-    {
-      name: 'Among Us',
-      template: 'amongus',
-      image: 'https://imgix.ranker.com/user_node_img/4270/85381195/original/among-us-u1?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300',
-      genre: 'Party video game, survival video game',
-    }
-  ];
-
-  res.render('popular', { games, title: 'Popular Games' });
-
-});
-
-app.get('/gamedetail', (req, res) => {
-  const gameName = 'Game Name'; // 실제 게임 이름으로 대체해야 합니다.
-  const gameRating = 'Game Rating'; // 실제 게임 평점으로 대체해야 합니다.
-  const gameDescription = 'Game Description'; // 실제 게임 설명으로 대체해야 합니다.
-  const gameImage = 'path/to/game/image.jpg'; // 실제 게임 이미지 경로로 대체해야 합니다.
-  const similarGames = ['Similar Game 1', 'Similar Game 2']; // 실제 유사한 게임 목록으로 대체해야 합니다.
-
-  // res.render('gamedetail', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Game Detail' });
-  res.render('gamedetail', { gameName: 'Example Game', gameRating: 8.5, gameDescription: 'This is an example game.', gameImage: '/images/example.jpg', similarGames: ['Game A', 'Game B', 'Game C'], title: 'Game Detail' });
-
-
-});
-
-app.get('/profile', async (req, res) => {
-  try {
-    const user = await database.db('COMP2800-BBY-12').collection('users').findOne({ username: req.session.username });
-
-    if (!user) {
-      return res.status(404).json({ error: '사용자를 찾을 수 없습니다' });
-    }
-
-    const { username, email, phone, image } = user; // 필요한 사용자 정보 추출
-
-    res.render('profile', { username, email, phone, image, title: 'Profile' });
-
-  } catch (error) {
-    console.error('사용자 조회 오류:', error);
-    res.status(500).json({ error: '사용자 조회에 실패했습니다' });
+  res.render("event", {title: "Event"});
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
   }
 });
 
-const dbName = 'COMP2800-BBY-12';
-
-// GET 요청을 처리하는 라우트 핸들러
-app.get('/changePasswordForm', (req, res) => {
-  res.render('changePassword');  // Render the 'changePassword' view
-});
-
-// POST 요청을 처리하는 라우트 핸들러
-app.post('/changePassword', async (req, res) => {
-  try {
-    const username = req.session.username;
-    const newPassword = req.body.newPassword;
-
-    const user = await database.db(dbName).collection('users').findOne({ username });
-
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    await database.db(dbName).collection('users').updateOne(
-      { username },
-      { $set: { password: hashedPassword } }
-    );
-
-    res.status(200).json({ message: 'Password updated successfully' });
-  } catch (error) {
-    console.error('Error updating password:', error);
-    res.status(500).json({ error: 'Failed to update password. Try again.' });
-  }
-});
-
-/// MongoDB connection URL
-const url = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}?retryWrites=true&w=majority`;
-
-// Connection options
-const options = {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-};
-
-// Create a new MongoClient
-const client = new MongoClient(url, options);
-
-// multer 설정
-app.post('/upload', upload.single('file'), (req, res, next) => {
-  // req.file is the 'file' file
-  // req.body will hold the text fields, if there were any
-  try {
-    console.log(req.file);
-    res.send('File uploaded successfully.');
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred while uploading the file.');
-  }
-});
-
-const image = "/path/to/image.jpg"; // 이미지 파일의 경로
-const timestamp = Date.now(); // 현재 시간을 사용하여 타임스탬프 생성
-
-const imageUrl = `${image}?t=${timestamp}`;
-
-// save a picture. now just have binary type.
-const validImageExtensions = ['.jpg', '.jpeg', '.png', '.gif'];
-
-app.post('/submitProfile', upload.single('profileImage'), async (req, res) => {
-  try {
-    if (req.file) {
-      // Handle the uploaded image file
-      console.log('Profile image uploaded:', req.file.filename);
-
-      // Update the user's profile image path in the database
-      const username = req.session.username; // Replace with your own user identifier
-      const imagePath = `/uploads/${req.file.filename}`;
-
-      await userCollection.updateOne(
-        { username: username },
-        { $set: { image: imagePath } }
-      );
-
-      console.log('Profile image path updated in the database');
-
-      // Send a response indicating success and the updated image path
-      res.send(imagePath);
-    } else {
-      res.status(400).send('No file uploaded');
-    }
-  } catch (error) {
-    console.error('Error handling profile image upload:', error);
-    res.status(500).send('Error handling profile image upload');
-  }
-});
-
-app.get('/profile', async (req, res) => {
-  const username = req.session.username;
-
-  try {
-    // Find the user in the database
-    const user = await userCollection.findOne({ username: username });
-    if (!user) {
-      res.status(404).send('User not found');
-      return;
-    }
-
-    // Render the profile page with the current profile image
-    res.render('profile', { image: user.image, title: 'Profile' })
-
-  } catch (error) {
-    console.error("Error fetching user profile:", error);
-    res.status(500).send("Error fetching user profile");
-  }
-});
-
-app.get('/recommend', (req, res) => {
-  try {
-    // 게임 추천에 필요한 데이터를 가져오는 로직
-    const imageUrl1 = '/img/reco1.png'; // 첫 번째 추천 이미지 경로
-    const imageUrl2 = '/img/reco2.png'; // 두 번째 추천 이미지 경로
-
-    // header와 footer를 포함하여 recommend.ejs 파일을 렌더링
-    res.render('recommend', { imageUrl1, imageUrl2, title: 'Recommend' });
-  } catch (error) {
-    console.error('Error rendering recommend page:', error);
-    res.status(500).send('Error rendering recommend page');
-  }
-});
-
-app.get("/recommended", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("recommend", {imageUrl1: "/img/steam_logo.png", imageUrl2: "/img/search_icon.png", title: "Recommended Games"});
-});
-
+// Settings page, which links to the specific types of settings.
 app.get("/settings", (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
     return;
   }
-  res.render("settings", { title: settings });
-});
-
-app.get("/notif-settings", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("notif-settings");
-});
-
-app.get("/sec-settings", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("sec-settings");
-});
-
-app.get('/gamedetails', (req, res) => {
-  let gameID = req.query.game_ID; // SteamID for the game, allows for the code here to get all of the other details for the game.
-  let resultIndex = 0;
-  if (!req.query.game_ID) {
-    gameID = 0;
-  }
-  for (let i = 0; i < gamesJSONData.length; i++) {
-    if (gamesJSONData[i].appid == gameID) {
-      resultIndex = i;
-    }
-  }
-  let game = gamesJSONData[resultIndex];
-  let exampleID = 1;
-  if (resultIndex == 1) {
-    exampleID = 3;
-  }
-  let gameName = game.name; // 실제 게임 이름으로 대체해야 합니다.
-  let gameRating = Math.round((game.positive / (game.positive + game.negative)) * 10000) / 100; // 실제 게임 평점으로 대체해야 합니다.
-  let gameDescription = game.short_description; // 실제 게임 설명으로 대체해야 합니다.
-  let gameImage = game.header_image; // 실제 게임 이미지 경로로 대체해야 합니다.
-  let appid = gamesJSONData[exampleID].appid;
-  let similarGames = `<a href='/gamedetails?game_ID=${appid}'><img id='${appid}' class='moregame' onmouseleave='closeHoverMenu(${appid})' onmouseenter='openHoverMenu(${appid})' src='${gamesJSONData[exampleID].header_image}'></a>`; // 실제 유사한 게임 목록으로 대체해야 합니다.
-
-  res.render('gamedetail', {
-    gameName: gameName, gameRating: gameRating, gameDescription: gameDescription,
-    gameImage: gameImage, similarGames: similarGames, title: `${gameName} Details`,
-    truncatedDesc: `${gamesJSONData[exampleID].short_description.substring(0, 200)}...`,
-    moreGameName: `${gamesJSONData[exampleID].name}`
-  });
-
-
-});
-
-app.get("/searchresults", (req, res) => {
-  let search = req.query.search;
-  let capitalised = search.substring(0, 1).toUpperCase() + search.substring(1, search.length);
-  let allcaps = search.toUpperCase();
-  let result = -1;
-  let searchResult = "";
-  if ("Counter-Strike".includes("Counter")) {
-    console.log("Counter will return the game Counter Strike.");
-  } else {
-    console.log("Counter will not return the game Counter Strike");
-  }
-  if (search.length == 1) {
-    capitalised = search.toUpperCase();
-  }
-  for (i = 0; i < gamesJSONData.length; i++) {
-    if (gamesJSONData[i].name.includes(search) || gamesJSONData[i].name.includes(capitalised) || gamesJSONData[i].name.includes(allcaps)) {
-      result = i;
-      let storeLink = gamesJSONData[result].name.replace(" ", "_");
-      let total = gamesJSONData[result].positive + gamesJSONData[result].negative;
-      console.log(`localhost:3200/gamedetails?game_name=${gamesJSONData[result].name}&ratings=${(gamesJSONData[result].positive / total) * 100}&imageurl=${gamesJSONData[result].header_image}&desc='${gamesJSONData[result].short_description.replace("'", "%27")}'`);
-      searchResult += `
-      <div class='card'>
-        <p class='game-title'>${gamesJSONData[result].name}</p>
-        <img class='game-img' src=${gamesJSONData[result].header_image}>
-        <span class='desc'>${gamesJSONData[result].short_description}</span>
-        <p class='overall-rating'>${Math.round(((gamesJSONData[result].positive / total) * 100) * 100) / 100}% Positive Reviews</p>
-        <div class='links'>
-          <a href='https://store.steampowered.com/app/${gamesJSONData[result].appid}/${storeLink}' target=_blank>Store Page</a>
-          <br>
-          <a class='btn btn-primary detail-button' href='/gamedetails?game_ID=${gamesJSONData[result].appid}'>More Details</a>
-        </div>
-      </div>
-      `;
-    }
-  }
-  if (result <= -1) {
-    result = 0;
-  }
-  if (!req.session.authenticated) {
-    res.redirect("login");
-    return;
-  }
-  res.render("searchresults", { title: "Search Results", search_query: search, search_results: searchResult });
-});
-
-// Will need to be connected to actual log out functions.
-app.get("/logout", (req, res) => {
-  if (!req.session.authenticated) {
-    res.redirect("/");
-    return;
-  }
-  res.render("logout");
-});
-
-app.get("/csvexample", (req, res) => {
-  let input = "Test";
-  let result = input;
-  res.render("csvexample", { search_query: result, title: "Test" });
-});
-
-app.get('/free', (req, res) => {
-  try {
-    // 게임 목록 데이터를 가져오는 로직
-    const games = [
-      {
-        name: 'League of Legends',
-        template: 'lol',  // 이 게임의 세부 정보를 보여줄 EJS 파일 이름
-        image: 'https://wallpaperaccess.com/full/2379009.jpg',
-        genre: 'MOBA',
-      },
-      {
-        name: 'Apex Legends',
-        template: 'apex',
-        image: 'https://mms.businesswire.com/media/20190204005535/en/703803/4/APEX_Primary_Art_72dpi_RGB_FIN.jpg',
-        genre: 'battle royale',
-      },
-      {
-        name: 'Warframe',
-        template: 'warframe',
-        image: 'https://s.yimg.com/fz/api/res/1.2/TBGlJPuGrYCI.pz5Vt1JBA--~C/YXBwaWQ9c3JjaGRkO2ZpPWZpdDtoPTI2MDtxPTgwO3c9MjYw/https://s.yimg.com/zb/imgv1/30fe762d-df30-303f-aa96-d81d6621bdac/t_500x300',
-        genre: 'Online action',
-      },
-      {
-        name: 'Fortnite',
-        template: 'fortnite',
-        image: 'https://imgix.ranker.com/user_node_img/3837/76737071/original/76737071-photo-u8?auto=format&q=60&fit=fill&fm=pjpg&dpr=2&crop=faces&bg=fff&h=300&w=300',
-        genre: 'Survival, battle royale, sandbox',
-      },
-      {
-        name: 'Genshin Impact',
-        template: 'gensin',
-        image: 'https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/a98cff5d-a612-49d8-a0db-175994384b20/de6gwbc-c62515e8-9411-41f1-a478-41972654fd0b.png/v1/fill/w_512,h_512,strp/genshin_impact_icon_by_kiramaru_kun_de6gwbc-fullview.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTEyIiwicGF0aCI6IlwvZlwvYTk4Y2ZmNWQtYTYxMi00OWQ4LWEwZGItMTc1OTk0Mzg0YjIwXC9kZTZnd2JjLWM2MjUxNWU4LTk0MTEtNDFmMS1hNDc4LTQxOTcyNjU0ZmQwYi5wbmciLCJ3aWR0aCI6Ijw9NTEyIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmltYWdlLm9wZXJhdGlvbnMiXX0.aAlCN4I4hmNlQLEkdBgimNt61LuwE2URyQkrREEtPCc',
-        genre: 'Open-world adventure',
-      },
-      {
-        name: 'Call of Duty Warzone',
-        template: 'callof',
-        image: 'https://tse3.mm.bing.net/th?id=OIP.NSNSp4aTWGfwM_gs5uBwDwHaHa&pid=Api&P=0',
-        genre: 'Battle royale',
-      }
-    ];
-
-    // free.ejs 파일을 렌더링하고 게임 목록 데이터를 전달
-    res.render('free', { games, title: 'Free Games' });
-
-  } catch (error) {
-    console.error('Error rendering free page:', error);
-    res.status(500).send('Error rendering free page');
+  res.render("setting", {title: "Settings"});
+  if (gamesJSONData == null) {
+    gamesJSONData = [].concat(Object.values(game1data), Object.values(game2data));
   }
 });
 
-app.get('/games/sss', (req, res) => {
-  const gameName = 'Super Smash Bros. Ultimate';
-  const gameRating = '96% of users like this video game';
-  const gameDescription = 'Super Smash Bros. Ultimate is a crossover fighting game developed by Bandai Namco Studios and Sora Ltd. and published by Nintendo. It is the fifth installment in the Super Smash Bros. series. The game features a diverse roster of characters from various video game franchises, including Mario, Link, Pikachu, Sonic, and many more. Players can engage in fast-paced and chaotic multiplayer battles, where the objective is to knock opponents off the stage. Super Smash Bros. Ultimate offers a wide range of game modes, including a single-player campaign, online multiplayer, and local multiplayer with friends. With its extensive character roster, vibrant visuals, and addictive gameplay, Super Smash Bros. Ultimate has become a beloved title among Nintendo and fighting game fans alike.';
-  const gameImage = '/img/super.jpg';
-  const similarGames = [
-    {
-      name: 'Brawlhalla',
-      image: '/img/halla.jpg'
-    },
-    {
-      name: 'Rivals of Aether',
-      image: '/img/aether.jpg'
-    },
-    {
-      name: 'PlayStation All-Stars Battle Royale',
-      image: '/img/allstar.jpg'
-    }
-  ];
+// Catches any unknown pages, and redirects to a 404 page.
+app.get("*", (req, res) => {
+  res.status(404);
+  res.render("404");
+})
 
-  res.render('sss', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/reddead', (req, res) => {
-  const gameName = 'Red Dead Redemption II';
-  const gameRating = '85% of users like this video game';
-  const gameDescription = 'Among Us is a popular online multiplayer game developed by InnerSloth. In the game, players work together to complete tasks on a spaceship or space station, while trying to identify and eliminate the impostors among them. It requires strategic thinking, teamwork, and deception skills to succeed. The game has gained immense popularity for its simple yet engaging gameplay, leading to thrilling and suspenseful moments as players try to uncover the impostors and survive.';
-  const gameImage = '/img/reddead.jpg';
-  const similarGames = [
-    {
-      name: 'Project Winter: Project Winter',
-      image: '/img/winter.jpg'
-    },
-    {
-      name: 'Town of Salem',
-      image: '/img/town.jpg'
-    },
-    {
-      name: 'Deceit',
-      image: '/img/deceit.jpg'
-    }
-  ];
-
-  res.render('reddead', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/gta', (req, res) => {
-  const gameName = 'Grand Theft Auto V';
-  const gameRating = '97% of users like this video game';
-  const gameDescription = 'Grand Theft Auto V, also known as GTA V, is an action-adventure game developed by Rockstar North. Set in the fictional city of Los Santos, the game follows the lives of three main protagonists: Michael, Franklin, and Trevor, as they navigate through a sprawling open-world environment. Players can engage in various missions and activities, including heists, car races, and random encounters, allowing for a diverse and immersive gameplay experience. With its stunning graphics, detailed world design, and compelling storyline, GTA V has garnered critical acclaim and has become one of the best-selling video games of all time. The game offers both a single-player campaign and an online multiplayer mode, providing endless opportunities for exploration, interaction, and mayhem in the vast city of Los Santos.';
-  const gameImage = '/img/gta.jpg';
-  const similarGames = [
-    {
-      name: 'Dead Redemption 2',
-      image: '/img/reddead1.jpg'
-    },
-    {
-      name: 'Saints Row IV',
-      image: '/img/saints.jpg'
-    },
-    {
-      name: 'Sleeping Dogs',
-      image: '/img/sleep.jpg'
-    }
-  ];
-
-  res.render('gta', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/callof', (req, res) => {
-  const gameName = 'Call of Duty Warzone';
-  const gameRating = '79% of users like this video game';
-  const gameDescription = 'Call of Duty Warzone is a free-to-play battle royale game developed by Infinity Ward and Raven Software. It is part of the popular Call of Duty franchise and offers a large-scale, immersive multiplayer experience. In Warzone, players are dropped into a massive map where they fight against other players to be the last one standing. The game combines elements of traditional Call of Duty gameplay with the battle royale genre, offering intense gunfights, strategic gameplay, and a wide range of weapons and equipment to use. With its realistic graphics, intense action, and seamless integration with the Call of Duty universe, Warzone has garnered a dedicated player base and continues to be a popular choice for battle royale enthusiasts.';
-  const gameImage = '/img/callof1.jpg';
-  const similarGames = [
-    {
-      name: 'Apex Legends',
-      image: '/img/apex3.jpg'
-    },
-    {
-      name: 'PUBG',
-      image: '/img/pubg2.png'
-    },
-    {
-      name: 'Call of Duty: Warzone',
-      image: '/img/warzone1.jpg'
-    }
-  ];
-
-  res.render('callof', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/apex', (req, res) => {
-  const gameName = 'Apex Legends';
-  const gameRating = '88% of users like this video game';
-  const gameDescription = 'Apex Legends is a free-to-play battle royale game developed by Respawn Entertainment. It takes place in the Titanfall universe and features intense first-person shooter gameplay with a focus on team-based combat. Players form squads and compete against other teams in a map filled with weapons, abilities, and unique characters known as "Legends." With its fast-paced action, strategic gameplay, and unique character abilities, Apex Legends has become a popular choice for fans of the battle royale genre.';
-  const gameImage = '/img/apex2.jpg';
-  const similarGames = [
-    {
-      name: 'Call of Duty: Warzone',
-      image: '/img/callof.jpg'
-    },
-    {
-      name: 'Overwatch',
-      image: '/img/over.jpg'
-    },
-    {
-      name: 'Fortnite',
-      image: '/img/for.jpg'
-    }
-  ];
-
-  res.render('apex', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/fortnite', (req, res) => {
-  const gameName = 'Fortnite';
-  const gameRating = '85% of users like this video game';
-  const gameDescription = 'Fortnite is a highly popular battle royale game developed by Epic Games. It features fast-paced gameplay, unique building mechanics, and vibrant visuals. In Fortnite, players are dropped onto an island where they must fight against other players to be the last one standing. The game offers a wide variety of weapons, items, and cosmetic skins that players can collect and use to customize their characters. With its ever-evolving map, frequent updates, and exciting limited-time events, Fortnite has become a cultural phenomenon and has amassed a large and dedicated player base worldwide.';
-  const gameImage = '/img/among.jpg';
-  const similarGames = [
-    {
-      name: 'Apex Legends',
-      image: '/img/apex1.jpg'
-    },
-    {
-      name: 'PUBG',
-      image: '/img/pubg1.jpg'
-    },
-    {
-      name: 'Call of Duty: Warzone',
-      image: '/img/warzone1.jpg'
-    }
-  ];
-
-  res.render('fortnite', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/amongus', (req, res) => {
-  const gameName = 'Among Us';
-  const gameRating = '85% of users like this video game';
-  const gameDescription = 'Among Us is a popular online multiplayer game developed by InnerSloth. In the game, players work together to complete tasks on a spaceship or space station, while trying to identify and eliminate the impostors among them. It requires strategic thinking, teamwork, and deception skills to succeed. The game has gained immense popularity for its simple yet engaging gameplay, leading to thrilling and suspenseful moments as players try to uncover the impostors and survive.';
-  const gameImage = '/img/among.jpg';
-  const similarGames = [
-    {
-      name: 'Project Winter: Project Winter',
-      image: '/img/winter.jpg'
-    },
-    {
-      name: 'Town of Salem',
-      image: '/img/town.jpg'
-    },
-    {
-      name: 'Deceit',
-      image: '/img/deceit.jpg'
-    }
-  ];
-
-  res.render('amongus', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/gensin', (req, res) => {
-  const gameName = 'Genshin Impact';
-  const gameRating = '85% of users like this video game';
-  const gameDescription = 'Genshin Impact is an open-world action role-playing game developed by miHoYo. Set in the fantasy world of Teyvat, players embark on an epic adventure as the Traveler, exploring diverse regions, uncovering secrets, and battling formidable enemies. With its stunning visuals, immersive world, and engaging gameplay mechanics, Genshin Impact offers a captivating experience for players. The game features a unique elemental system, allowing players to harness the powers of different elements and strategically utilize them in combat. Along the way, players can encounter and recruit a wide range of colorful characters, each with their own abilities and personalities. Genshin Impact has received acclaim for its vast world, compelling story, and frequent content updates, making it a popular choice among RPG enthusiasts.';
-  const gameImage = '/img/gen.jpg';
-  const similarGames = [
-    {
-      name: 'Honkai Impact 3rd',
-      image: '/img/honkai.jpg'
-    },
-    {
-      name: 'The Legend of Zelda: Breath of the Wild',
-      image: '/img/zelda.jpg'
-    },
-    {
-      name: 'Blue Protocol',
-      image: '/img/blue.jpg'
-    }
-  ];
-
-  res.render('gensin', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/warframe', (req, res) => {
-  const gameName = 'Warframe';
-  const gameRating = '95% of users like this video game';
-  const gameDescription = 'Warframe is a free-to-play online action role-playing game developed and published by Digital Extremes. In the game, players control members of the Tenno, a race of ancient warriors who have awoken from centuries of cryosleep to find themselves at war with different factions. Players can customize and upgrade their Warframes, which are powerful exoskeletons that grant unique abilities and combat skills. With a focus on cooperative gameplay, Warframe allows players to team up with others to complete missions, explore the vast open-world environments, and take on challenging boss battles. The game features a deep and evolving storyline, a wide variety of weapons and equipment to acquire, and regular content updates to keep players engaged. Warframe offers a fast-paced and dynamic gameplay experience, combining elements of shooting, melee combat, and acrobatic maneuvers. It has garnered a dedicated fanbase and continues to receive positive reviews for its engaging gameplay and ongoing support from the developers.';
-  const gameImage = '/img/warframe3.png';
-  const similarGames = [
-    {
-      name: 'Destiny 2',
-      image: '/img/destiny.jpg'
-    },
-    {
-      name: 'Warhammer 40,000: Inquisitor - Martyr',
-      image: '/img/warhammer.jpg'
-    },
-    {
-      name: 'Path of Exile',
-      image: '/img/exile1.jpg'
-    }
-  ];
-
-  res.render('warframe', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/lol', (req, res) => {
-  const gameName = 'League of Legends';
-  const gameRating = '76% of users like this video game';
-  const gameDescription = 'League of Legends, also known as LoL, is a multiplayer online battle arena (MOBA) game developed and published by Riot Games. In League of Legends, players assume the role of a "champion" and compete in teams to destroy the opposing teams nexus, which is the core structure of their base. The game features a diverse roster of champions, each with unique abilities and playstyles, offering a wide range of strategic options and team compositions. Matches in League of Legends are fast-paced and require teamwork, communication, and strategic decision-making to secure victory. With its competitive esports scene and large player base, League of Legends has become one of the most popular and influential games in the industry, attracting millions of players from around the world.';
-  const gameImage = '/img/lol1.jpg';
-  const similarGames = [
-    {
-      name: 'Dota 2',
-      image: '/img/dota2.jpg'
-    },
-    {
-      name: 'Heroes of the Storm',
-      image: '/img/heros.jpg'
-    },
-    {
-      name: 'Smite',
-      image: '/img/sm.jpg'
-    }
-  ];
-
-  res.render('lol', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
-app.get('/games/minecraft', (req, res) => {
-  const gameName = 'Minecraft';
-  const gameRating = '93% of users like this video game';
-  const gameDescription = 'Minecraft is a sandbox video game developed by Mojang Studios. It allows players to explore and create their own virtual worlds made up of blocks. In Minecraft, players can gather resources, build structures, craft items, and engage in various activities such as farming, mining, and fighting off enemies. The game offers multiple game modes, including survival mode where players must manage their resources and survive against threats, creative mode where players have unlimited resources to build and create freely, and adventure mode where players can experience custom-made maps and challenges. Minecraft has a vibrant community and supports multiplayer gameplay, allowing players to collaborate and interact with others in their virtual worlds. With its endless possibilities and open-ended gameplay, Minecraft has become a beloved and iconic game enjoyed by players of all ages.';
-  const gameImage = '/img/mine.jpg';
-  const similarGames = [
-    {
-      name: 'Terraria',
-      image: '/img/terria.jpg'
-    },
-    {
-      name: 'Roblox',
-      image: '/img/roblox.jpg'
-    },
-    {
-      name: 'Stardew Valley',
-      image: '/img/valley.png'
-    }
-  ];
-
-  res.render('minecraft', { gameName, gameRating, gameDescription, gameImage, similarGames, title: 'Among Us' });
-});
-
+// Starts the server on either the port specified by the hosting service, or on port 3200.
 app.listen(port, () => {
   console.log("Node application listening on port " + port);
 });

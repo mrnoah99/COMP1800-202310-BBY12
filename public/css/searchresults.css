@@ -21,8 +21,8 @@ body {
     margin-top: 100px;
     display: grid;
     background-color: #94e9ff;
-    grid-template-columns: [img title] 25vw [desc] 70vw;
-    grid-template-rows: [title] 15vh [img desc] 30vh [links reviews] 10vh;
+    grid-template-columns: [img title] 45vw [desc] 50vw;
+    grid-template-rows: [title] 10vh [img desc] 35vh [links reviews] 10vh;
 }
 
 .desc {
@@ -40,7 +40,7 @@ body {
 }
 
 .game-img {
-    width: 300px;
+    width: 550px;
     height: auto;
     margin-right: 3vw;
     display: block;
@@ -90,6 +90,12 @@ body {
     height: 40px;
 }
 
+#search-label {
+    grid-column: searchbar-start / searchbar-icon;
+    grid-row: searchbar-end;
+    font-size: 10pt
+}
+
 #search-button:hover {
     cursor: pointer;
 }
@@ -100,9 +106,68 @@ body {
     justify-self: center;
 }
 
-@media only screen and (max-width: 700px) {
+@media only screen and (max-width: 1200px) {
     #img {
         width: 260px;
         height: auto;
+    }
+
+    #search-label {
+        font-size: 8pt;
+    }
+
+    #top-text {
+        font-size: 32pt;
+    }
+
+    .game-title {
+        font-size: 20pt;
+    }
+
+    .overall-rating {
+        font-size: 8pt;
+    }
+
+    .links {
+        font-size: 12pt;
+    }
+
+    .game-img {
+        width: 340px;
+    }
+}
+
+@media only screen and (max-width: 700px) {
+    #img {
+        width: 240px;
+        height: auto;
+    }
+
+    #search-label {
+        font-size: 8pt;
+    }
+
+    #top-text {
+        font-size: 28pt;
+    }
+
+    .game-title {
+        font-size: 16pt;
+    }
+
+    .desc {
+        font-size: 12pt;
+    }
+
+    .overall-rating {
+        font-size: 8pt;
+    }
+
+    .links {
+        font-size: 10pt;
+    }
+
+    .game-img {
+        width: 200px;
     }
 }

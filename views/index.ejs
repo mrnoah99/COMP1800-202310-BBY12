@@ -4,6 +4,7 @@
 
 <%- include("templates/navbar") %>
     <div id="background">
+      <div id="hero" class="text-center">Welcome, <%= user %>!</div>
         <nav class="navbar">
             <div class="container-fluid">
                 <div id="container">
@@ -12,31 +13,11 @@
                       <img src="/img/notification_icon.png">
                     </button>
                     <iframe id="notifications" src="notification.html" style="display: none;"></iframe>
-                    <input type="text" name="search" id="search-bar">
+                    <input type="text" name="search" id="search-bar" placeholder="Search: Please use proper capitalisation">
                     <button id="search-button" onclick="search()"><img src="/img/search_icon.png" id="search-icon"></button>
                 </div>
             </div>
         </nav>
-        <div id="hero" class="text-center">Welcome, User!<br>
-            <div class="container text-center" id="popular-grid">
-                <div class="row">
-                  <div class="col">
-                    Column 1 Row 1
-                  </div>
-                  <div class="col">
-                    Column 2 Row 2
-                  </div>
-                </div>
-                <div class="row">
-                    <div class="col">
-                      Column 1 Row 2
-                    </div>
-                    <div class="col">
-                      Column 2 Row 2
-                    </div>
-                  </div>
-              </div>
-        </div>
     </div>
     <script src="/js/mainpage.js"></script>
     <script src="/js/search.js"></script>

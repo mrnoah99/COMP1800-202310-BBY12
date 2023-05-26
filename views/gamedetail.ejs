@@ -2,18 +2,21 @@
 <link rel="stylesheet" type="text/css" href="/css/gamedetail.css">
 <%- include("templates/navbar") %>
   <div class="container">
-    <span id="gameName"><%= gameName %></span>
+    <p id="gameName"><%= gameName %><a id="storeLink" href="<%= storeLink %>" class="btn btn-primary" target="_blank">Store Page</a></p>
     <p id="gameRating"><%= gameRating %>% Positive Reviews</p>
+    <p id="releaseDate">Release Date: <%= releaseDate %></p>
+    <p id="recAge">Recommended Age: <%= age %>+</p>
+    <p id="platforms">Available on: <%= platforms %></p>
+    <p id="languages">Available in: <%= languages %></p>
+    <p id="price">Price: $<%= price %>USD</p>
     <p id="gameDescription"><%= gameDescription %></p>
     <img id="gameImage" class="game-image" src="<%= gameImage %>" alt="Game Image">
     <br>
     <br>
+    <p id="categories">Categories:<br><%= categories %></p>
+    <p id="tags">Tagged with:<br><%= tags %></p>
     <p class="similarTitle">More games you might like...</p>
-    <p class="similarGames"><%- similarGames %><span id="popup"><%= moreGameName %>
-      <br>
-      <span id="popupDesc"><%= truncatedDesc %></span>
-      </span>
-    </p>
+    <p class="similarGames"><%- similarGames %></p>
   </div>
   <script src="/js/gamedetail.js"></script>
   <%- include("templates/footer") %>

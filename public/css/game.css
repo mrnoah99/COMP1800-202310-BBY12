@@ -1,0 +1,113 @@
+/* Styling for game list */
+#gameList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+
+/* Styling for page navigation */
+#prevPage,
+#pageNumber,
+#totalPages,
+#nextPage {
+  margin: 10px;
+}
+
+#prevPage,
+#nextPage {
+  background-color: #f2f2f2;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+}
+
+#prevPage:disabled,
+#nextPage:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#pageNumber,
+#totalPages {
+  font-weight: bold;
+}
+
+/* Styling for buttons */
+#popular,
+#free,
+#expensive,
+#cheap,
+#all {
+  background-color: #f2f2f2;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+#popular.active,
+#free.active,
+#expensive.active,
+#cheap.active,
+#all.active {
+  background-color: #ccc;
+}
+
+.game-container {
+  background-color: #87CEFA;
+  padding: 20px;
+  margin: 10px;
+  border-radius: 15px;
+  text-align: center;
+  width: 300px; /* Set a fixed width */
+  height: 500px; /* Set a fixed height */
+}
+
+.game-image {
+  width: 100%;
+  height: 200px; /* Set a fixed height */
+  object-fit: contain; /* Adjust the image to fit its container while maintaining its aspect ratio */
+  margin-bottom: 15px;
+}
+
+.game-title {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.game-price,
+.game-genre {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.game-detail {
+  font-size: 18px;
+}
+
+#filter-btn {
+  background-color: rgba(31, 158, 31, 0.806); /* Lime green background */
+  color: white; /* White text */
+  border: none;
+  border-radius: 10px;
+  display: block;
+  margin: 20px auto; /* Top and bottom margin 20px, left and right margin auto */
+  padding: 10px; /* Internal padding */
+  width: 150px; /* Button width */
+  font-size: 16px; /* Font size */
+}
+
+
+#filter-menu {
+  /* Center alignment */
+  text-align: center;
+}
+
+/* Page navigation styling */
+div#page-navigation {
+  /* Right alignment */
+  text-align: right;
+
+}
+
